@@ -1,76 +1,88 @@
-from django.contrib.auth import get_user_model
+import json
 
-from .testCases import RelayTestCase, DefaultTestCase
 from graphql_auth.constants import Messages
-from graphql_auth.utils import get_token, get_token_payload
+from graphql_auth.utils import get_token
+
+from .testCases import BaseTestCase
 
 
-class PasswordResetTestCaseMixin:
+class PasswordResetBaseTestCase(BaseTestCase):
     def setUp(self):
-        self.user1 = self.register_user(
-            email="gaa@email.com", username="gaa", verified=True, archived=False
-        )
+        self.user1 = self.register_user(email="gaa@email.com", username="gaa", verified=True, archived=False)
         self.user1_old_pass = self.user1.password
 
-    def test_reset_password(self):
+    def get_login_query(self) -> str:
+        raise NotImplementedError
+
+    def get_query(self, token, new_password1="new_password", new_password2="new_password"):
+        raise NotImplementedError
+
+    def _test_reset_password(self):
         token = get_token(self.user1, "password_reset")
         query = self.get_query(token)
-        executed = self.make_request(query)
-        self.assertEqual(executed["success"], True)
-        self.assertEqual(executed["errors"], None)
+        response = self.query(query)
+        self.assertResponseNoErrors(response)
+        result = json.loads(response.content.decode())['data'][self.RESPONSE_RESULT_KEY]
+        self.assertEqual(result['success'], True)
         self.user1.refresh_from_db()
-        self.assertFalse(self.user1_old_pass == self.user1.password)
+        self.assertNotEqual(self.user1_old_pass, self.user1.password)
 
-    def test_reset_password_invalid_form(self):
+    def _test_reset_password_invalid_form(self):
         token = get_token(self.user1, "password_reset")
         query = self.get_query(token, "wrong_pass")
-        executed = self.make_request(query)
-        self.assertEqual(executed["success"], False)
-        self.assertTrue(executed["errors"])
+        response = self.query(query)
+        self.assertResponseHasErrors(response)
+        error = json.loads(response.content.decode())['errors'][0]
+        self.assertEqual(error['message'], Messages.FAILED_PASSWORD_CHANGE_MESSAGE)
         self.user1.refresh_from_db()
-        self.assertFalse(self.user1_old_pass != self.user1.password)
+        self.assertEqual(self.user1_old_pass, self.user1.password)
 
-    def test_reset_password_invalid_token(self):
+    def _test_reset_password_invalid_token(self):
         query = self.get_query("fake_token")
-        executed = self.make_request(query)
-        self.assertEqual(executed["success"], False)
-        self.assertTrue(executed["errors"]["nonFieldErrors"])
+        response = self.query(query)
+        self.assertResponseHasErrors(response)
+        error = json.loads(response.content.decode())['errors'][0]
+        self.assertEqual(error['message'], Messages.FAILED_PASSWORD_CHANGE_MESSAGE)
+        self.assertEqual(error['extensions'], Messages.INVALID_TOKEN)
         self.user1.refresh_from_db()
-        self.assertTrue(self.user1_old_pass == self.user1.password)
+        self.assertEqual(self.user1_old_pass, self.user1.password)
 
-    def test_revoke_refresh_tokens_on_password_reset(self):
-        executed = self.make_request(self.get_login_query())
+    def _test_revoke_refresh_tokens_on_password_reset(self):
+        self.query(self.get_login_query())
         self.user1.refresh_from_db()
-        refresh_tokens = self.user1.refresh_tokens.all()
+        refresh_tokens = self.user1.refresh_tokens.all()  # type: ignore
         for token in refresh_tokens:
             self.assertFalse(token.revoked)
         token = get_token(self.user1, "password_reset")
         query = self.get_query(token)
-        executed = self.make_request(query)
-        self.assertEqual(executed["success"], True)
-        self.assertEqual(executed["errors"], None)
+        response = self.query(query)
+        self.assertResponseNoErrors(response)
+        result = json.loads(response.content.decode())['data'][self.RESPONSE_RESULT_KEY]
+        self.assertTrue(result['success'])
         self.user1.refresh_from_db()
-        self.assertFalse(self.user1_old_pass == self.user1.password)
-        refresh_tokens = self.user1.refresh_tokens.all()
+        self.assertNotEqual(self.user1_old_pass, self.user1.password)
+        refresh_tokens = self.user1.refresh_tokens.all()  # type: ignore
         for token in refresh_tokens:
             self.assertTrue(token.revoked)
 
-    def test_reset_password_verify_user(self):
-        self.user1.verified = False
+    def _test_reset_password_verify_user(self):
+        self.user1.verified = False  # type: ignore
         self.user1.save()
 
         token = get_token(self.user1, "password_reset")
         query = self.get_query(token)
-        executed = self.make_request(query)
-
-        self.assertEqual(executed["success"], True)
-        self.assertEqual(executed["errors"], None)
+        response = self.query(query)
+        self.assertResponseNoErrors(response)
+        result = json.loads(response.content.decode())['data'][self.RESPONSE_RESULT_KEY]
+        self.assertTrue(result['success'])
         self.user1.refresh_from_db()
-        self.assertFalse(self.user1_old_pass == self.user1.password)
-        self.assertTrue(self.user1.status.verified)
+        self.assertNotEqual(self.user1_old_pass, self.user1.password)
+        self.assertTrue(self.user1.status.verified)  # type: ignore
 
 
-class PasswordResetTestCase(PasswordResetTestCaseMixin, DefaultTestCase):
+class PasswordResetTestCase(PasswordResetBaseTestCase):
+    RESPONSE_RESULT_KEY = 'passwordReset'
+
     def get_login_query(self):
         return """
         mutation {
@@ -78,15 +90,11 @@ class PasswordResetTestCase(PasswordResetTestCaseMixin, DefaultTestCase):
                 username: "foo_username",
                 password: "%s",
             )
-            { success, errors, refreshToken }
+            { success, token, refreshToken }
         }
-        """ % (
-            self.default_password,
-        )
+        """ % (self.default_password,)
 
-    def get_query(
-        self, token, new_password1="new_password", new_password2="new_password"
-    ):
+    def get_query(self, token, new_password1="new_password", new_password2="new_password"):
         return """
         mutation {
             passwordReset(
@@ -94,7 +102,7 @@ class PasswordResetTestCase(PasswordResetTestCaseMixin, DefaultTestCase):
                 newPassword1: "%s",
                 newPassword2: "%s"
             )
-            { success, errors }
+            { success }
         }
         """ % (
             token,
@@ -103,34 +111,32 @@ class PasswordResetTestCase(PasswordResetTestCaseMixin, DefaultTestCase):
         )
 
 
-class PasswordResetRelayTestCase(PasswordResetTestCaseMixin, RelayTestCase):
-    def get_login_query(self):
+class PasswordResetRelayTestCase(PasswordResetBaseTestCase):
+    RESPONSE_RESULT_KEY = 'relayPasswordReset'
+
+    def get_login_query(self) -> str:
         return """
         mutation {
-            tokenAuth(
+            relayTokenAuth(
                 input: {
                     username: "foo_username",
                     password: "%s",
                 }
             )
-            { success, errors, refreshToken }
+            { success, token, refreshToken }
         }
-        """ % (
-            self.default_password,
-        )
+        """ % (self.default_password,)
 
-    def get_query(
-        self, token, new_password1="new_password", new_password2="new_password"
-    ):
+    def get_query(self, token, new_password1="new_password", new_password2="new_password") -> str:
         return """
         mutation {
-            passwordReset(
+            relayPasswordReset(
                 input: {
                     token: "%s",
                     newPassword1: "%s",
                     newPassword2: "%s"
                 })
-            { success, errors }
+            { success }
         }
         """ % (
             token,

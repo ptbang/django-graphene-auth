@@ -1,79 +1,77 @@
-from unittest import skip
+import json
+from datetime import datetime
 
-from django.contrib.auth import get_user_model
-from django.utils import timezone
-
-from .testCases import RelayTestCase, DefaultTestCase
-from graphql_auth.constants import Messages
+from .testCases import BaseTestCase
 
 
-# GRAPHQL_JWT = {
-#     "JWT_LONG_RUNNING_REFRESH_TOKEN": True,
-# }
+class RevokeTokenBaseTestCase(BaseTestCase):
+    LOGIN_QUERY_RESPONSE_RESULT_KEY: str
 
-
-class RevokeTokenTestCaseMixin:
     def setUp(self):
         self.user1 = self.register_user(email="foo@email.com", username="foo_username")
 
-    def test_revoke_token(self):
+    def get_login_query(self) -> str:
+        raise NotImplementedError
+
+    def get_revoke_query(self, token) -> str:
+        raise NotImplementedError
+
+    def _test_revoke_token(self):
         query = self.get_login_query()
-        executed = self.make_request(query)
-        self.assertTrue(executed["refreshToken"])
+        response = self.query(query)
+        self.assertResponseNoErrors(response)
+        result = json.loads(response.content.decode())['data'][self.LOGIN_QUERY_RESPONSE_RESULT_KEY]
 
-        query = self.get_revoke_query(executed["refreshToken"])
-        executed = self.make_request(query)
-        self.assertTrue(executed["success"])
-        self.assertTrue(executed["revoked"])
-        self.assertFalse(executed["errors"])
+        query = self.get_revoke_query(result['refreshToken'])
+        response = self.query(query)
+        result = json.loads(response.content.decode())['data'][self.RESPONSE_RESULT_KEY]
+        self.assertEqual(datetime.fromtimestamp(result['revoked']).date(), datetime.today().date())
 
-    def test_invalid_token(self):
-        query = self.get_revoke_query("invalid_token")
-        executed = self.make_request(query)
-        self.assertFalse(executed["success"])
-        self.assertTrue(executed["errors"])
-        self.assertFalse(executed["revoked"])
+    def _test_invalid_token(self):
+        query = self.get_revoke_query('invalid_token')
+        response = self.query(query)
+        self.assertResponseHasErrors(response)
+        error = json.loads(response.content.decode())['errors'][0]
+        self.assertEqual(error['message'], 'Invalid refresh token')
 
 
-class RevokeTokenTestCase(RevokeTokenTestCaseMixin, DefaultTestCase):
+class RevokeTokenTestCase(RevokeTokenBaseTestCase):
+    RESPONSE_RESULT_KEY = 'revokeToken'
+    LOGIN_QUERY_RESPONSE_RESULT_KEY = 'tokenAuth'
+
     def get_login_query(self):
         return """
         mutation {
         tokenAuth(email: "foo@email.com", password: "%s" )
-            { refreshToken, success, errors  }
+            { refreshToken  }
         }
-        """ % (
-            self.default_password
-        )
+        """ % (self.default_password)
 
     def get_revoke_query(self, token):
         return """
         mutation {
         revokeToken(refreshToken: "%s" )
-            { success, errors, revoked  }
+            { revoked  }
         }
-        """ % (
-            token
-        )
+        """ % (token)
 
 
-class VerifyTokenRelayTestCase(RevokeTokenTestCaseMixin, RelayTestCase):
+class RevokeTokenRelayTestCase(RevokeTokenBaseTestCase):
+    RESPONSE_RESULT_KEY = 'relayRevokeToken'
+    LOGIN_QUERY_RESPONSE_RESULT_KEY = 'relayTokenAuth'
+
     def get_login_query(self):
         return """
         mutation {
-        tokenAuth(input:{ email: "foo@email.com", password: "%s"  })
-            { refreshToken, success, errors  }
-        }
-        """ % (
-            self.default_password
-        )
+            relayTokenAuth(input:{ email: "foo@email.com", password: "%s"  })
+                { refreshToken  }
+            }
+        """ % (self.default_password)
 
     def get_revoke_query(self, token):
         return """
         mutation {
-        revokeToken(input: {refreshToken: "%s"} )
-            { success, errors, revoked  }
+            relayRevokeToken(input: {refreshToken: "%s"} )
+                { revoked  }
         }
-        """ % (
-            token
-        )
+        """ % (token)

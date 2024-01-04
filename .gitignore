@@ -28,4 +28,5 @@ __pycache__
 /site
 
 .venv/
+venv/
 .python-version

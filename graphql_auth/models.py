@@ -1,24 +1,18 @@
 import time
-from django.db import models
+
 from django.conf import settings as django_settings
+from django.contrib.auth import get_user_model
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import send_mail
+from django.db import models, transaction
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from django.core.mail import send_mail
-from django.contrib.sites.shortcuts import get_current_site
-from django.contrib.auth import get_user_model
-from django.db import transaction
 
-
+from .constants import Messages, TokenAction
+from .exceptions import EmailAlreadyInUseError, UserAlreadyVerifiedError, UserNotVerifiedError, WrongUsageError
 from .settings import graphql_auth_settings as app_settings
-from .constants import TokenAction
-from .utils import get_token, get_token_payload
-from .exceptions import (
-    UserAlreadyVerified,
-    UserNotVerified,
-    EmailAlreadyInUse,
-    WrongUsage,
-)
 from .signals import user_verified
+from .utils import get_token, get_token_payload
 
 UserModel = get_user_model()
 
@@ -28,9 +22,7 @@ class UserStatus(models.Model):
     A helper model that handles user account stuff.
     """
 
-    user = models.OneToOneField(
-        django_settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="status"
-    )
+    user = models.OneToOneField(django_settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="status")
     verified = models.BooleanField(default=False)
     archived = models.BooleanField(default=False)
     secondary_email = models.EmailField(blank=True, null=True)
@@ -48,9 +40,7 @@ class UserStatus(models.Model):
             from_email=app_settings.EMAIL_FROM,
             message=message,
             html_message=html_message,
-            recipient_list=(
-                recipient_list or [getattr(self.user, UserModel.EMAIL_FIELD)]
-            ),
+            recipient_list=(recipient_list or [getattr(self.user, UserModel.EMAIL_FIELD)]),
             fail_silently=False,
         )
 
@@ -71,27 +61,21 @@ class UserStatus(models.Model):
         }
 
     def send_activation_email(self, info, *args, **kwargs):
-        email_context = self.get_email_context(
-            info, app_settings.ACTIVATION_PATH_ON_EMAIL, TokenAction.ACTIVATION
-        )
+        email_context = self.get_email_context(info, app_settings.ACTIVATION_PATH_ON_EMAIL, TokenAction.ACTIVATION)
         template = app_settings.EMAIL_TEMPLATE_ACTIVATION
         subject = app_settings.EMAIL_SUBJECT_ACTIVATION
         return self.send(subject, template, email_context, *args, **kwargs)
 
     def resend_activation_email(self, info, *args, **kwargs):
         if self.verified is True:
-            raise UserAlreadyVerified
-        email_context = self.get_email_context(
-            info, app_settings.ACTIVATION_PATH_ON_EMAIL, TokenAction.ACTIVATION
-        )
+            raise UserAlreadyVerifiedError
+        email_context = self.get_email_context(info, app_settings.ACTIVATION_PATH_ON_EMAIL, TokenAction.ACTIVATION)
         template = app_settings.EMAIL_TEMPLATE_ACTIVATION_RESEND
         subject = app_settings.EMAIL_SUBJECT_ACTIVATION_RESEND
         return self.send(subject, template, email_context, *args, **kwargs)
 
     def send_password_set_email(self, info, *args, **kwargs):
-        email_context = self.get_email_context(
-            info, app_settings.PASSWORD_SET_PATH_ON_EMAIL, TokenAction.PASSWORD_SET
-        )
+        email_context = self.get_email_context(info, app_settings.PASSWORD_SET_PATH_ON_EMAIL, TokenAction.PASSWORD_SET)
         template = app_settings.EMAIL_TEMPLATE_PASSWORD_SET
         subject = app_settings.EMAIL_SUBJECT_PASSWORD_SET
         return self.send(subject, template, email_context, *args, **kwargs)
@@ -106,7 +90,7 @@ class UserStatus(models.Model):
 
     def send_secondary_email_activation(self, info, email):
         if not self.email_is_free(email):
-            raise EmailAlreadyInUse
+            raise EmailAlreadyInUseError
         email_context = self.get_email_context(
             info,
             app_settings.ACTIVATION_SECONDARY_EMAIL_PATH_ON_EMAIL,
@@ -135,13 +119,11 @@ class UserStatus(models.Model):
     def clean_email(cls, email=False):
         if email:
             if cls.email_is_free(email) is False:
-                raise EmailAlreadyInUse
+                raise EmailAlreadyInUseError
 
     @classmethod
     def verify(cls, token):
-        payload = get_token_payload(
-            token, TokenAction.ACTIVATION, app_settings.EXPIRATION_ACTIVATION_TOKEN
-        )
+        payload = get_token_payload(token, TokenAction.ACTIVATION, app_settings.EXPIRATION_ACTIVATION_TOKEN)
         user = UserModel._default_manager.get(**payload)
         user_status = cls.objects.get(user=user)
         if user_status.verified is False:
@@ -149,7 +131,7 @@ class UserStatus(models.Model):
             user_status.save(update_fields=["verified"])
             user_verified.send(sender=cls, user=user)
         else:
-            raise UserAlreadyVerified
+            raise UserAlreadyVerifiedError
 
     @classmethod
     def verify_secondary_email(cls, token):
@@ -160,7 +142,7 @@ class UserStatus(models.Model):
         )
         secondary_email = payload.pop("secondary_email")
         if not cls.email_is_free(secondary_email):
-            raise EmailAlreadyInUse
+            raise EmailAlreadyInUseError
         user = UserModel._default_manager.get(**payload)
         user_status = cls.objects.get(user=user)
         user_status.secondary_email = secondary_email
@@ -182,7 +164,7 @@ class UserStatus(models.Model):
 
     def swap_emails(self):
         if not self.secondary_email:
-            raise WrongUsage
+            raise WrongUsageError
         with transaction.atomic():
             EMAIL_FIELD = UserModel.EMAIL_FIELD
             primary = getattr(self.user, EMAIL_FIELD)
@@ -193,7 +175,7 @@ class UserStatus(models.Model):
 
     def remove_secondary_email(self):
         if not self.secondary_email:
-            raise WrongUsage
+            raise WrongUsageError
         with transaction.atomic():
             self.secondary_email = None
             self.save(update_fields=["secondary_email"])

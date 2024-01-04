@@ -1,7 +1,7 @@
 import graphene
 from graphene_django.utils import camelize
 
-from .exceptions import WrongUsage
+from .exceptions import WrongUsageError
 
 
 class ExpectedErrorType(graphene.Scalar):
@@ -40,4 +40,4 @@ class ExpectedErrorType(graphene.Scalar):
             return camelize(errors)
         elif isinstance(errors, list):
             return {"nonFieldErrors": errors}
-        raise WrongUsage("`errors` must be list or dict!")
+        raise WrongUsageError("`errors` must be list or dict!")

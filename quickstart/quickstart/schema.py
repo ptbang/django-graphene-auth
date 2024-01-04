@@ -2,7 +2,7 @@
 
 import graphene
 
-from graphql_auth.schema import UserQuery, MeQuery
+from graphql_auth.queries import UserQuery, MeQuery
 from graphql_auth import mutations
 
 

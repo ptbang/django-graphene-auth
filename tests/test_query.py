@@ -1,37 +1,96 @@
-from django.test import TestCase
+import base64
+import json
 
-from .testCases import DefaultTestCase
+from django.contrib.auth import get_user_model
+
+from .testCases import BaseTestCase
+
+UserModel = get_user_model()
 
 
-class QueryTestCase(DefaultTestCase):
+class QueryTestCase(BaseTestCase):
     def setUp(self):
-        self.user1 = self.register_user(
-            email="foo@email.com", username="foo", verified=False
-        )
-        self.user2 = self.register_user(
-            email="bar@email.com", username="bar", verified=True
-        )
-        self.user3 = self.register_user(
-            email="gaa@email.com", username="gaa", verified=True, archived=True
-        )
+        self.user1 = self.register_user(email="foo@email.com", username="foo", verified=False)
+        self.user2 = self.register_user(email="bar@email.com", username="bar", verified=True)
+        self.user3 = self.register_user(email="gaa@email.com", username="gaa", verified=True, archived=True)
 
-    def test_query(self):
+    def test_user(self):
+        id = base64.b64encode(('UserNode:' + str(self.user1.pk)).encode()).decode()
         query = """
         query {
-            users {
+            user(id: "%s") {
+                id, pk
+            }
+        }
+        """ % (base64.b64encode(('UserNode:' + str(self.user1.pk)).encode()).decode(),)
+        response = self.query(query)
+        result = json.loads(response.content)['data']['user']
+        self.assertIsNone(result)
+
+        self.client.force_login(self.user2)
+        response = self.query(query)
+        result = json.loads(response.content)['data']['user']
+        self.assertIsNone(result)
+
+        self.user2.is_staff = True
+        self.user2.save()
+        response = self.query(query)
+        result = json.loads(response.content)['data']['user']
+        self.assertEqual(result['pk'], self.user1.pk)
+
+    def test_users(self):
+        query = """
+        query {
+            users(first: 2) {
+                totalCount
                 edges {
                     node {
                         archived,
                         verified,
                         secondaryEmail,
-                        pk
+                        pk,
+                        id
+                    }
+                }
+                pageInfo { startCursor, endCursor, hasPreviousPage, hasNextPage }
+            }
+        }
+        """
+        response = self.query(query)
+        result = json.loads(response.content.decode())['data']['users']
+        self.assertEqual(result['edges'], [])
+
+        self.client.force_login(self.user2)
+        response = self.query(query)
+        result = json.loads(response.content)['data']['users']
+        self.assertEqual(result['edges'], [])
+
+        self.user2.is_staff = True  # type: ignore
+        self.user2.save()
+        response = self.query(query)
+        result = json.loads(response.content)['data']['users']
+        self.assertEqual(len(result['edges']), 2)
+        self.assertEqual(result['totalCount'], UserModel.objects.all().count())
+
+        query = """
+        query {
+            users (email: "%s") {
+                edges {
+                    node {
+                        email,
+                        archived,
+                        verified,
+                        secondaryEmail,
+                        pk,
+                        id
                     }
                 }
             }
         }
-        """
-        executed = self.make_request(query)
-        self.assertTrue(executed["edges"])
+        """ % (self.user3.email)  # type: ignore
+        response = self.query(query)
+        result = json.loads(response.content)['data']['users']
+        self.assertEqual(result["edges"][0]['node']['email'], self.user3.email)  # type: ignore
 
     def test_db_queries(self):
         """
@@ -44,6 +103,13 @@ class QueryTestCase(DefaultTestCase):
             )
             LIMIT 3
         """
+        self.user2.is_staff = True  # type: ignore
+        self.user2.save()
+        login_query = """
+            mutation {tokenAuth(email: "%s", password: "%s") { token }}
+            """ % (self.user2.email, self.default_password)  # type: ignore
+        response = self.query(login_query)
+        token = json.loads(response.content.decode())['data']['tokenAuth']['token']
 
         query = """
         query {
@@ -59,9 +125,10 @@ class QueryTestCase(DefaultTestCase):
             }
         }
         """
-        with self.assertNumQueries(2):
-            executed = self.make_request(query)
-        self.assertTrue(executed["edges"])
+        with self.assertNumQueries(3):
+            response = self.query(query, headers=self.get_authorization_header(token))
+        result = json.loads(response.content.decode())['data']['users']
+        self.assertEqual(len(result["edges"]), UserModel.objects.all().count())
 
     def test_me_authenticated(self):
         query = """
@@ -71,8 +138,11 @@ class QueryTestCase(DefaultTestCase):
             }
         }
         """
-        executed = self.make_request(query, variables={"user": self.user2})
-        self.assertTrue(executed["username"])
+        self.client.force_login(self.user2)
+        response = self.query(query)
+        self.assertResponseNoErrors(response)
+        result = json.loads(response.content.decode())['data']['me']
+        self.assertEqual(result['username'], self.user2.username)  # type: ignore
 
     def test_me_anonymous(self):
         query = """
@@ -82,16 +152,6 @@ class QueryTestCase(DefaultTestCase):
             }
         }
         """
-        executed = self.make_request(query)
-        self.assertIsNone(executed)
-
-    def test_public_user_query(self):
-        query = """
-        query {
-            publicUser {
-                verified
-            }
-        }
-        """
-        executed = self.make_request(query, variables={"user": self.user1})
-        self.assertEqual(executed, {"verified": False})
+        response = self.query(query)
+        result = json.loads(response.content.decode())['data']['me']
+        self.assertIsNone(result)

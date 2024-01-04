@@ -1,24 +1,27 @@
 import graphene
-
 from django.utils.module_loading import import_string
 
-from .types import ExpectedErrorType
 from .settings import graphql_auth_settings as app_settings
+from .types import ExpectedErrorType
 
-if app_settings.CUSTOM_ERROR_TYPE and isinstance(app_settings.CUSTOM_ERROR_TYPE, str):
-    OutputErrorType = import_string(app_settings.CUSTOM_ERROR_TYPE)
-else:
-    OutputErrorType = ExpectedErrorType
+# if app_settings.CUSTOM_ERROR_TYPE and isinstance(app_settings.CUSTOM_ERROR_TYPE, str):
+#     OutputErrorType = import_string(app_settings.CUSTOM_ERROR_TYPE)
+# else:
+#     OutputErrorType = ExpectedErrorType
 
 
-class Output:
-    """
-    A class to all public classes extend to
-    padronize the output
-    """
+# class Output:
+#     """
+#     A class to all public classes extend to
+#     padronize the output
+#     """
 
+#     success = graphene.Boolean(default_value=True)
+#     errors = graphene.Field(OutputErrorType)
+
+
+class SuccessFieldOutput:
     success = graphene.Boolean(default_value=True)
-    errors = graphene.Field(OutputErrorType)
 
 
 class MutationMixin:
@@ -60,16 +63,14 @@ class DynamicArgsMixin:
     or list [arg_name,] -> defaults to String
     """
 
-    _args = {}
-    _required_args = {}
+    _args: dict | list = {}
+    _required_args: dict | list = {}
 
     @classmethod
     def Field(cls, *args, **kwargs):
         if isinstance(cls._args, dict):
             for key in cls._args:
-                cls._meta.arguments.update(
-                    {key: graphene.Argument(getattr(graphene, cls._args[key]))}
-                )
+                cls._meta.arguments.update({key: graphene.Argument(getattr(graphene, cls._args[key]))})
         elif isinstance(cls._args, list):
             for key in cls._args:
                 cls._meta.arguments.update({key: graphene.String()})
@@ -77,11 +78,7 @@ class DynamicArgsMixin:
         if isinstance(cls._required_args, dict):
             for key in cls._required_args:
                 cls._meta.arguments.update(
-                    {
-                        key: graphene.Argument(
-                            getattr(graphene, cls._required_args[key]), required=True
-                        )
-                    }
+                    {key: graphene.Argument(getattr(graphene, cls._required_args[key]), required=True)}
                 )
         elif isinstance(cls._required_args, list):
             for key in cls._required_args:
@@ -100,8 +97,8 @@ class DynamicInputMixin:
     or list [input_name,] -> defaults to String
     """
 
-    _inputs = {}
-    _required_inputs = {}
+    _inputs: dict | list = {}
+    _required_inputs: dict | list = {}
 
     @classmethod
     def Field(cls, *args, **kwargs):
@@ -112,18 +109,12 @@ class DynamicInputMixin:
                 )
         elif isinstance(cls._inputs, list):
             for key in cls._inputs:
-                cls._meta.arguments["input"]._meta.fields.update(
-                    {key: graphene.InputField(graphene.String)}
-                )
+                cls._meta.arguments["input"]._meta.fields.update({key: graphene.InputField(graphene.String)})
 
         if isinstance(cls._required_inputs, dict):
             for key in cls._required_inputs:
                 cls._meta.arguments["input"]._meta.fields.update(
-                    {
-                        key: graphene.InputField(
-                            getattr(graphene, cls._required_inputs[key]), required=True
-                        )
-                    }
+                    {key: graphene.InputField(getattr(graphene, cls._required_inputs[key]), required=True)}
                 )
         elif isinstance(cls._required_inputs, list):
             for key in cls._required_inputs:

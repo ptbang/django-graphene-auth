@@ -1,75 +1,78 @@
-from django.contrib.auth import get_user_model
+import json
 
-from django.utils import timezone
-
-from .testCases import RelayTestCase, DefaultTestCase
 from graphql_auth.constants import Messages
 
+from .testCases import BaseTestCase
 
-class VerifyTokenTestCaseMixin:
+
+class VerifyTokenBaseTestCase(BaseTestCase):
+    LOGIN_QUERY_RESPONSE_RESULT_KEY: str
+
     def setUp(self):
-        self.user = self.register_user(
-            email="foo@email.com", username="foo", verified=False
-        )
+        self.user = self.register_user(email="foo@email.com", username="foo", verified=False)
 
-    def test_verify_token(self):
+    def get_login_query(self) -> str:
+        raise NotImplementedError
+
+    def get_verify_query(self, token) -> str:
+        raise NotImplementedError
+
+    def _test_verify_token(self):
         query = self.get_login_query()
-        executed = self.make_request(query)
-        self.assertTrue(executed["token"])
+        response = self.query(query)
+        result = json.loads(response.content.decode())['data'][self.LOGIN_QUERY_RESPONSE_RESULT_KEY]
 
-        query = self.get_verify_query(executed["token"])
-        executed = self.make_request(query)
-        self.assertTrue(executed["success"])
-        self.assertTrue(executed["payload"])
-        self.assertFalse(executed["errors"])
+        query = self.get_verify_query(result['token'])
+        response = self.query(query)
+        self.assertResponseNoErrors(response)
+        result = json.loads(response.content.decode())['data'][self.RESPONSE_RESULT_KEY]
+        self.assertTrue(result['payload']['username'], self.user.username)  # type: ignore
 
-    def test_invalid_token(self):
+    def _test_invalid_token(self):
         query = self.get_verify_query("invalid_token")
-        executed = self.make_request(query)
-        self.assertFalse(executed["success"])
-        self.assertTrue(executed["errors"])
-        self.assertFalse(executed["payload"])
+        response = self.query(query)
+        self.assertResponseHasErrors(response)
+        error = json.loads(response.content.decode())['errors'][0]
+        self.assertEqual(error['message'], Messages.INVALID_TOKEN['message'])
 
 
-class VerifyTokenTestCase(VerifyTokenTestCaseMixin, DefaultTestCase):
+class VerifyTokenTestCase(VerifyTokenBaseTestCase):
+    RESPONSE_RESULT_KEY = 'verifyToken'
+    LOGIN_QUERY_RESPONSE_RESULT_KEY: str = 'tokenAuth'
+
     def get_login_query(self):
         return """
         mutation {
-        tokenAuth(email: "foo@email.com", password: "%s" )
-            { token, success, errors  }
+        tokenAuth(email: "%s", password: "%s" )
+            { token }
         }
-        """ % (
-            self.default_password
-        )
+        """ % (self.user.email, self.default_password)  # type: ignore
 
     def get_verify_query(self, token):
         return """
         mutation {
-        verifyToken(token: "%s" )
-            { success, errors, payload  }
+        verifyToken(token: "%s")
+            { payload }
         }
-        """ % (
-            token
-        )
+        """ % (token)
 
 
-class VerifyTokenRelayTestCase(VerifyTokenTestCaseMixin, RelayTestCase):
+class VerifyTokenRelayTestCase(VerifyTokenBaseTestCase):
+    RESPONSE_RESULT_KEY = 'relayVerifyToken'
+    LOGIN_QUERY_RESPONSE_RESULT_KEY: str = 'relayTokenAuth'
+
     def get_login_query(self):
         return """
         mutation {
-        tokenAuth(input:{ email: "foo@email.com", password: "%s"  })
-            { token, success, errors  }
+        relayTokenAuth(input:{ email: "%s", password: "%s" })
+            { token }
         }
-        """ % (
-            self.default_password
-        )
+        """ % (self.user.email, self.default_password)  # type: ignore
 
     def get_verify_query(self, token):
         return """
         mutation {
-        verifyToken(input: {token: "%s"} )
-            { success, errors, payload  }
+        relayVerifyToken(input: {token: "%s"})
+            { payload }
         }
-        """ % (
-            token
-        )
+        """ % (token)

@@ -1,71 +1,69 @@
-from django.contrib.auth import get_user_model
+import json
 
-from .testCases import RelayTestCase, DefaultTestCase
 from graphql_auth.constants import Messages
-from graphql_auth.utils import get_token, get_token_payload
+from graphql_auth.utils import get_token
+
+from .testCases import BaseTestCase
 
 
-class PasswordSetTestCaseMixin:
+class PasswordSetBaseTestCase(BaseTestCase):
     def setUp(self):
-        self.user1 = self.register_user(
-            email="gaa@email.com", username="gaa", verified=True, archived=False
-        )
+        self.user1 = self.register_user(email="gaa@email.com", username="gaa", verified=True, archived=False)
         self.user1_old_pass = self.user1.password
 
-    def test_already_set_password(self):
+    def get_login_query(self) -> str:
+        raise NotImplementedError
+
+    def get_query(self, token, new_password1="new_password", new_password2="new_password") -> str:
+        raise NotImplementedError
+
+    def _test_already_set_password(self):
         token = get_token(self.user1, "password_set")
         query = self.get_query(token)
-        executed = self.make_request(query)
-        self.assertEqual(executed["success"], False)
-        self.assertEqual(
-            executed["errors"],
-            {
-                "nonFieldErrors": [
-                    {
-                        "code": "password_already_set",
-                        "message": "Password already set for account.",
-                    }
-                ]
-            },
-        )
+        response = self.query(query)
+        self.assertResponseHasErrors(response)
+        error = json.loads(response.content.decode())['errors'][0]
+        self.assertEqual(error['message'], Messages.PASSWORD_ALREADY_SET['message'])
+        self.assertEqual(error['extensions'], Messages.PASSWORD_ALREADY_SET)
         self.user1.refresh_from_db()
-        self.assertFalse(self.user1_old_pass != self.user1.password)
+        self.assertEqual(self.user1_old_pass, self.user1.password)
 
-    def test_set_password_invalid_form(self):
+    def _test_set_password_invalid_form(self):
         token = get_token(self.user1, "password_set")
         query = self.get_query(token, "wrong_pass")
-        executed = self.make_request(query)
-        self.assertEqual(executed["success"], False)
-        self.assertTrue(executed["errors"])
+        response = self.query(query)
+        self.assertResponseHasErrors(response)
+        error = json.loads(response.content.decode())['errors'][0]
+        self.assertEqual(error['message'], Messages.FAILED_PASSWORD_CHANGE_MESSAGE)
         self.user1.refresh_from_db()
-        self.assertFalse(self.user1_old_pass != self.user1.password)
+        self.assertEqual(self.user1_old_pass, self.user1.password)
 
-    def test_set_password_invalid_token(self):
+    def _test_set_password_invalid_token(self):
         query = self.get_query("fake_token")
-        executed = self.make_request(query)
-        self.assertEqual(executed["success"], False)
-        self.assertTrue(executed["errors"]["nonFieldErrors"])
+        response = self.query(query)
+        self.assertResponseHasErrors(response)
+        error = json.loads(response.content.decode())['errors'][0]
+        self.assertEqual(error['message'], Messages.FAILED_PASSWORD_CHANGE_MESSAGE)
+        self.assertEqual(error['extensions'], Messages.INVALID_TOKEN)
         self.user1.refresh_from_db()
-        self.assertFalse(self.user1_old_pass != self.user1.password)
+        self.assertEqual(self.user1_old_pass, self.user1.password)
 
 
-class PasswordSetTestCase(PasswordSetTestCaseMixin, DefaultTestCase):
-    def get_login_query(self):
+class PasswordSetTestCase(PasswordSetBaseTestCase):
+    RESPONSE_RESULT_KEY = 'passwordSet'
+
+    def get_login_query(self) -> str:
         return """
         mutation {
             tokenAuth(
                 username: "foo_username",
                 password: "%s",
             )
-            { success, errors, refreshToken }
+            { refreshToken }
         }
-        """ % (
-            self.default_password,
-        )
+        """ % (self.default_password,)
 
-    def get_query(
-        self, token, new_password1="new_password", new_password2="new_password"
-    ):
+    def get_query(self, token, new_password1="new_password", new_password2="new_password") -> str:
         return """
         mutation {
             passwordSet(
@@ -73,46 +71,36 @@ class PasswordSetTestCase(PasswordSetTestCaseMixin, DefaultTestCase):
                 newPassword1: "%s",
                 newPassword2: "%s"
             )
-            { success, errors }
+            { success }
         }
-        """ % (
-            token,
-            new_password1,
-            new_password2,
-        )
+        """ % (token, new_password1, new_password2)
 
 
-class PasswordSetRelayTestCase(PasswordSetTestCaseMixin, RelayTestCase):
-    def get_login_query(self):
+class PasswordSetRelayTestCase(PasswordSetBaseTestCase):
+    RESPONSE_RESULT_KEY = 'relayPasswordSet'
+
+    def get_login_query(self) -> str:
         return """
-        mutation {
-            tokenAuth(
-                input: {
-                    username: "foo_username",
-                    password: "%s",
-                }
-            )
-            { success, errors, refreshToken }
-        }
-        """ % (
-            self.default_password,
-        )
+            mutation {
+                relayTokenAuth(
+                    input: {
+                        username: "foo_username",
+                        password: "%s",
+                    }
+                )
+                { success, refreshToken }
+            }
+            """ % (self.default_password,)
 
-    def get_query(
-        self, token, new_password1="new_password", new_password2="new_password"
-    ):
+    def get_query(self, token, new_password1="new_password", new_password2="new_password") -> str:
         return """
-        mutation {
-            passwordSet(
-                input: {
-                    token: "%s",
-                    newPassword1: "%s",
-                    newPassword2: "%s"
-                })
-            { success, errors }
-        }
-        """ % (
-            token,
-            new_password1,
-            new_password2,
-        )
+            mutation {
+                relayPasswordSet(
+                    input: {
+                        token: "%s",
+                        newPassword1: "%s",
+                        newPassword2: "%s"
+                    })
+                { success }
+            }
+        """ % (token, new_password1, new_password2)

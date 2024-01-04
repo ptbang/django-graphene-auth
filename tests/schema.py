@@ -3,7 +3,7 @@ import graphql_jwt
 from graphene_django.filter.fields import DjangoFilterConnectionField
 
 from graphql_auth import mutations, relay
-from graphql_auth.schema import MeQuery, UserQuery
+from graphql_auth.queries import MeQuery, UserQuery
 
 from .types import UserType
 

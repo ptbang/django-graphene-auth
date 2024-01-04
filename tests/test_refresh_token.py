@@ -1,77 +1,79 @@
-from django.contrib.auth import get_user_model
+import json
+from abc import abstractmethod
 
-from django.utils import timezone
-
-from .testCases import RelayTestCase, DefaultTestCase
-from graphql_auth.constants import Messages
+from .testCases import BaseTestCase
 
 
-class RefreshTokenTestCaseMixin:
+class RefreshTokenBaseTestCase(BaseTestCase):
+    RESPONSE_RESULT_KEY: str
+    TOKEN_AUTH_RESPONSE_RESULT_KEY: str
+
+    @abstractmethod
+    def get_login_query(self):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def get_refresh_token_query(self, token):
+        raise NotImplementedError()
+
     def setUp(self):
-        self.user = self.register_user(
-            email="foo@email.com", username="foo", verified=True, archived=False
-        )
+        self.user = self.register_user(email='foo@email.com', username='foo', verified=True, archived=False)
 
-    def test_refresh_token(self):
+    def _test_refresh_token(self):
         query = self.get_login_query()
-        executed = self.make_request(query)
-        self.assertTrue(executed["refreshToken"])
+        response = self.query(query)
+        result = json.loads(response.content)['data'][self.TOKEN_AUTH_RESPONSE_RESULT_KEY]
+        self.assertTrue(result['refreshToken'])
 
-        query = self.get_verify_query(executed["refreshToken"])
-        executed = self.make_request(query)
-        self.assertTrue(executed["success"])
-        self.assertTrue(executed["refreshToken"])
-        self.assertTrue(executed["payload"])
-        self.assertFalse(executed["errors"])
+        query = self.get_refresh_token_query(result['refreshToken'])
+        response = self.query(query)
+        result = self.get_response_result(response)
+        self.assertTrue(result['refreshToken'])
+        self.assertTrue(result['payload'])
 
-    def test_invalid_token(self):
-        query = self.get_verify_query("invalid_token")
-        executed = self.make_request(query)
-        self.assertFalse(executed["success"])
-        self.assertFalse(executed["refreshToken"])
-        self.assertFalse(executed["payload"])
-        self.assertTrue(executed["errors"])
+    def _test_invalid_token(self):
+        query = self.get_refresh_token_query('invalid_token')
+        response = self.query(query)
+        self.assertResponseHasErrors(response, "Invalid refresh token")
 
 
-class RefreshTokenTestCase(RefreshTokenTestCaseMixin, DefaultTestCase):
+class RefreshTokenTestCase(RefreshTokenBaseTestCase):
+    RESPONSE_RESULT_KEY = 'refreshToken'
+    TOKEN_AUTH_RESPONSE_RESULT_KEY = 'tokenAuth'
+
     def get_login_query(self):
         return """
         mutation {
-        tokenAuth(email: "foo@email.com", password: "%s" )
-            { refreshToken, success, errors  }
+            tokenAuth(email: "foo@email.com", password: "%s" )
+                { refreshToken }
         }
-        """ % (
-            self.default_password
-        )
+        """ % (self.default_password)
 
-    def get_verify_query(self, token):
+    def get_refresh_token_query(self, token):
         return """
         mutation {
-        refreshToken(refreshToken: "%s" )
-            { success, errors, refreshToken, payload  }
-        }
-        """ % (
-            token
-        )
+            refreshToken(refreshToken: "%s" )
+                { refreshToken, payload  }
+            }
+        """ % (token)
 
 
-class RefreshTokenRelayTestCase(RefreshTokenTestCaseMixin, RelayTestCase):
+class RefreshTokenRelayTestCase(RefreshTokenBaseTestCase):
+    RESPONSE_RESULT_KEY = 'relayRefreshToken'
+    TOKEN_AUTH_RESPONSE_RESULT_KEY = 'relayTokenAuth'
+
     def get_login_query(self):
         return """
         mutation {
-        tokenAuth(input:{ email: "foo@email.com", password: "%s"  })
-            { refreshToken, success, errors  }
+            relayTokenAuth(input:{ email: "foo@email.com", password: "%s"  })
+                { refreshToken  }
         }
-        """ % (
-            self.default_password
-        )
+        """ % (self.default_password)
 
-    def get_verify_query(self, token):
+    def get_refresh_token_query(self, token):
         return """
         mutation {
-        refreshToken(input: {refreshToken: "%s"} )
-            { success, errors, refreshToken, payload  }
+            relayRefreshToken(input: {refreshToken: "%s"} )
+                { refreshToken, payload  }
         }
-        """ % (
-            token
-        )
+        """ % (token)

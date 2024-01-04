@@ -1,8 +1,13 @@
+import inspect
+import types
 import warnings
-from django.core import signing
-from django.contrib.auth import get_user_model
+from importlib import import_module
+
 from django.conf import settings as django_settings
+from django.contrib.auth import get_user_model
+from django.core import signing
 from django.core.signing import BadSignature
+from graphene_django.utils import camelize
 
 from .exceptions import TokenScopeError
 
@@ -38,14 +43,19 @@ def get_token_paylod(token, action, exp=None):
 
 
 def using_refresh_tokens():
-    if (
+    # if (
+    #     hasattr(django_settings, "GRAPHQL_JWT")
+    #     and django_settings.GRAPHQL_JWT.get("JWT_LONG_RUNNING_REFRESH_TOKEN", False)
+    #     and "graphql_jwt.refresh_token.apps.RefreshTokenConfig"
+    #     in django_settings.INSTALLED_APPS
+    # ):
+    #     return True
+    # return False
+    return (
         hasattr(django_settings, "GRAPHQL_JWT")
         and django_settings.GRAPHQL_JWT.get("JWT_LONG_RUNNING_REFRESH_TOKEN", False)
-        and "graphql_jwt.refresh_token.apps.RefreshTokenConfig"
-        in django_settings.INSTALLED_APPS
-    ):
-        return True
-    return False
+        and "graphql_jwt.refresh_token.apps.RefreshTokenConfig" in django_settings.INSTALLED_APPS
+    )
 
 
 def revoke_user_refresh_token(user):
@@ -66,14 +76,32 @@ def flat_dict(dict_or_list):
     return list(dict_or_list.keys()) if isinstance(dict_or_list, dict) else dict_or_list
 
 
-def normalize_fields(dict_or_list, extra_list):
+# def normalize_fields(dict_or_list, extra_list):
+#     """
+#     helper merge settings defined fileds and
+#     other fields on mutations
+#     """
+#     if isinstance(dict_or_list, dict):
+#         for i in extra_list:
+#             dict_or_list[i] = "String"
+#         return dict_or_list
+#     else:
+#         return dict_or_list + extra_list
+
+
+def get_classes(module: str | types.ModuleType, class_type: type | None = None) -> list[tuple[str, type]]:
     """
-    helper merge settings defined fileds and
-    other fields on mutations
+    Returns list of all classes od type `class_type` defined in the given module path.
     """
-    if isinstance(dict_or_list, dict):
-        for i in extra_list:
-            dict_or_list[i] = "String"
-        return dict_or_list
-    else:
-        return dict_or_list + extra_list
+    if isinstance(module, str):
+        module = import_module(module)
+    if not class_type:
+        return inspect.getmembers(module, inspect.isclass)
+    return [item for item in inspect.getmembers(module, inspect.isclass) if issubclass(item[1], class_type)]
+
+
+def camelize_form_errors(errors: dict) -> dict:
+    """Camelize dict of django form errors"""
+    if errors.get('__all__', False):
+        errors['non_field_errors'] = errors.pop('__all__')
+    return camelize(errors)

@@ -14,10 +14,10 @@ class Messages:
     }
     NOT_VERIFIED = {"message": _("Please verify your account."), "code": "not_verified"}
     NOT_VERIFIED_PASSWORD_RESET = {
-        "message": _("Verify your account. A new verification email was sent."),
+        "message": _("Verify your account first. A new verification email was sent."),
         "code": "not_verified",
     }
-    EMAIL_IN_USE = {"email": _("A user with that email already exists."), "code": "unique"}
+    EMAIL_IN_USE = {"email": _("A user with that email already exists."), "code": "email_in_use"}
     SECONDARY_EMAIL_REQUIRED = {
         "message": _("You need to setup a secondary email to proceed."),
         "code": "secondary_email_required",
@@ -27,7 +27,10 @@ class Messages:
         "code": "password_already_set",
     }
     INVALID_REGISTRATION_DATA_MESSAGE = _("Invalid registration data.")
-    FAILED_ACTIVATION_EMAIL_MESSAGE = _("User account created but could not send activation email.")
+    FAILED_SENDING_ACTIVATION_EMAIL = {
+        'message': _("User account created but could not send activation email."),
+        'code': 'send_activation_email_failed',
+    }
     FAILED_PASSWORD_CHANGE_MESSAGE = _("Password change failed.")
     INVALID_EMAIL_ADDRESS_MESSAGE = _("Invalid email address.")
 

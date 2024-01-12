@@ -1,3 +1,1 @@
-__version__ = "0.3.16"
-
-default_app_config = "graphql_auth.apps.GraphQLAuthConfig"
+__version__ = '1.0.0'

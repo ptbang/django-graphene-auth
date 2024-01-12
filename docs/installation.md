@@ -1,29 +1,22 @@
 # Installation
 
-!!! attention
-    If you are not familiarized with
-    [Graphene](https://github.com/graphql-python/graphene)
-    or [GraphQL JWT](https://github.com/flavors/django-graphql-jwt), skip this
-    installation section and go to the [quickstart](quickstart.md) guide.
-
 ---
 
 ## Requirements
 
-- Python: 3.6 - 3.7 - 3.8
-- Django: 2.2 - 3.0
+- Python: 3.10 - 3.11
+- Django: 3.2 - 4.2 - 5.0
 
 ---
 
 ## Installation
 
 ```bash
-pip install django-graphql-auth
+pip install django-graphene-auth
 ```
 
 !!! Note ""
-    For those that are not installed, this will automatically install `graphene`, `graphene-django`,
-    `django-graphql-jwt`, `django-filter` and `django`.
+    this will automatically install `graphene`, `graphene-django`, `django-graphql-jwt`, `django-filter` and `django`.
 
 Add `graphql_auth` to installed apps.
 
@@ -44,7 +37,7 @@ python manage.py migrate
 
 ## Setup
 
-The following are the minimum steps required to get it running. It should not take more than 10 minutes.
+The following are the minimum steps required to get it running.
 
 ---
 
@@ -178,7 +171,22 @@ GRAPHQL_JWT = {
 
 ---
 
-### 3. Authentication Backend <small>- optional</small>
+### 3. Get user handler for Authentication Backend
+
+Add to `#!python GRAPHQL_JWT['JWT_GET_USER_BY_NATURAL_KEY_HANDLER']` setting for joining
+user status to Django `request.user` by using `select_related("status")` in the query.:
+
+```python
+GRAPHQL_JWT = {
+    # ...
+    "JWT_GET_USER_BY_NATURAL_KEY_HANDLER": "graphql_auth.utils.get_user_by_natural_key",
+    # ...
+}
+```
+
+---
+
+### 4. Authentication Backend <small>- optional</small>
 
 Add the following to your `#!python AUTHENTICATION_BACKENDS`:
 
@@ -201,9 +209,9 @@ AUTHENTICATION_BACKENDS = [
 
     ---
 
-    Why should I want this behaivor?
+    Why should I want this behavior?
 
-    Intead of raising an actual error, we can handle it and return whatever make sense, e.g.:
+    Instead of raising an actual error, we can handle it and return whatever make sense, e.g.:
     ```python
       cls(success=False errors="Unauthenticated.")
     ```
@@ -213,12 +221,12 @@ AUTHENTICATION_BACKENDS = [
     You should handle this situation doing one of the following:
 
     - Simply use the graphql_jwt decorator [@login_required](https://django-graphql-jwt.domake.io/en/latest/decorators.html#login-required).
-    - Use [our login_required decorator](https://github.com/PedroBern/django-graphql-auth/blob/fce93a3f6103d7194d3e3fbd28b7466602b8bf31/graphql_auth/decorators.py#L7), note that this expect your output to contain [this output](https://github.com/PedroBern/django-graphql-auth/blob/fce93a3f6103d7194d3e3fbd28b7466602b8bf31/graphql_auth/bases.py#L6).
+    - Use [our login_required decorator](https://github.com/ptbang/django-graphene-auth/blob/face76be02928947e32358c5207b397d2457f99b/graphql_auth/decorators.py#L7), note that this expect your output to contain "success" and "errors" fields.
     - Create your own login_required decorator!
 
 ---
 
-### 4. Refresh Token <small>- optional</small>
+### 5. Refresh Token <small>- optional</small>
 
 Refresh tokens are optional and this package will work with the default token
 from [Django GraphQL JWT](https://github.com/flavors/django-graphql-jwt).
@@ -246,7 +254,7 @@ python manage.py migrate
 
 ---
 
-### 5. Email Templates
+### 6. Email Templates
 
 !!! Note ""
     Overriding email templates is covered [here](overriding-email-templates.md).
@@ -264,14 +272,14 @@ TEMPLATES = [
 
 ---
 
-### 6. Email Backend
+### 7. Email Backend
 
 The default configuration is to send activation email,
 you can set it to ``False`` on your [settings](settings.md),
 but you still need an Email Backend
 to password reset.
 
-The quickest way for development is to setup a [Console Email Backend](https://docs.djangoproject.com/en/3.0/topics/email/#console-backend), simply add the following to your ```settings.py```.
+The quickest way for development is to setup a [Console Email Backend](https://docs.djangoproject.com/en/5.0/topics/email/#console-backend), simply add the following to your ```settings.py```.
 
 ```python
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

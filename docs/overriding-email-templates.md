@@ -18,7 +18,7 @@ TEMPLATES = [
 ]
 ```
 
-## File and folder sctructure
+## File and folder structure
 
 Create the following folder and files structure:
 
@@ -50,8 +50,8 @@ Both subject and email templates receive the following variables:
 - user
 - token --> account activation / password reset / secondary-email activation
 - port
-- site_name --> from [django sites framework](https://docs.djangoproject.com/en/3.0/ref/contrib/sites/) <small>(optional)</small>
-- domain --> from [django sites framework](https://docs.djangoproject.com/en/3.0/ref/contrib/sites/) <small>(optional)</small>
+- site_name --> from [django sites framework](https://docs.djangoproject.com/en/5.0/ref/contrib/sites/) <small>(optional)</small>
+- domain --> from [django sites framework](https://docs.djangoproject.com/en/5.0/ref/contrib/sites/) <small>(optional)</small>
 - protocol
 - path --> defined in [settings](settings.md) <small>(some frontend path)</small>
 - request
@@ -62,8 +62,6 @@ Both subject and email templates receive the following variables:
 ## Writing the templates
 
 Write your templates like this:
-
-{% raw %}
 
 ```html
 <!-- activation_email.html -->
@@ -76,7 +74,5 @@ Write your templates like this:
 
 <p>{{ protocol }}://{{ domain }}/{{ path }}/{{ token }}</p>
 ```
-
-{% endraw %}
 
 Provide only the `html` template. It will be converted to `text` later.

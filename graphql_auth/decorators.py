@@ -21,8 +21,7 @@ def verification_required(fn):
     def wrapper(cls, root, info, **kwargs):
         user = info.context.user
         if not user.status.verified:
-            # return cls(success=False, errors=Messages.NOT_VERIFIED)
-            raise GraphQLAuthError(message=Messages.NOT_VERIFIED['message'], extensions=Messages.NOT_VERIFIED)
+            return cls(success=False, errors=Messages.NOT_VERIFIED)
         return fn(cls, root, info, **kwargs)
 
     return wrapper
@@ -34,10 +33,7 @@ def secondary_email_required(fn):
     def wrapper(cls, root, info, **kwargs):
         user = info.context.user
         if not user.status.secondary_email:
-            raise GraphQLAuthError(
-                message=Messages.SECONDARY_EMAIL_REQUIRED['message'], extensions=Messages.SECONDARY_EMAIL_REQUIRED
-            )
-            # return cls(success=False, errors=Messages.SECONDARY_EMAIL_REQUIRED)
+            return cls(success=False, errors=Messages.SECONDARY_EMAIL_REQUIRED)
         return fn(cls, root, info, **kwargs)
 
     return wrapper
@@ -57,7 +53,6 @@ def password_confirmation_required(fn):
         user = info.context.user
         if user.check_password(password):
             return fn(cls, root, info, **kwargs)
-        # return cls(success=False, errors=errors)
-        raise GraphQLAuthError(message=Messages.INVALID_PASSWORD['message'], extensions=Messages.INVALID_PASSWORD)
+        return cls(success=False, errors={field_name: Messages.INVALID_PASSWORD})
 
     return wrapper

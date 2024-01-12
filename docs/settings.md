@@ -8,6 +8,12 @@ Configuration is made from a single Django setting named `#!python GRAPHQL_AUTH`
 
 ```python
 # settings.py
+GRAPHQL_JWT = {
+    # join user status to user when attempting to get user instance from JWT token
+    'JWT_GET_USER_BY_NATURAL_KEY_HANDLER': 'graphql_auth.utils.get_user_by_natural_key',
+    # ...
+}
+
 
 GRAPHQL_AUTH = {
     'LOGIN_ALLOWED_FIELDS': ['email', 'username'],
@@ -219,21 +225,28 @@ Notice that this is pseudo async support, just a hook to let you implement the a
 Basic usage with celery:
 
 ```python
-from celery import task
+# file path/to/async_task.py
+
+from celery import Celery
+
+app = Celery('some_name', broker='pyamqp://guest@localhost//')
 
 @task
-def graphql_auth_async_email(func, args):
+def async_email(func, args):
     """
     Task to send an e-mail for the graphql_auth package
     """
     return func(*args)
+
+def graphql_auth_async_email(args):
+    async_email.delay(args)
 ```
 
 For the example above, the setting would be:
 
 ```python
 GRAPHQL_AUTH = {
-    "EMAIL_ASYNC_TASK": "path/to/file.graphql_auth_async_email"
+    "EMAIL_ASYNC_TASK": "path/to/async_task.graphql_auth_async_email"
 }
 ```
 
@@ -310,10 +323,7 @@ GRAPHQL_AUTH = {
 ```
 
 Now, in the templates:
-{% raw %}
 
 ```html
 <p>{{ protocol }}://{{ frontend_domain }}/{{ path }}/{{ token }}</p>
 ```
-
-{% endraw %}

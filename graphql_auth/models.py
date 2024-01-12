@@ -8,8 +8,8 @@ from django.db import models, transaction
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
-from .constants import Messages, TokenAction
-from .exceptions import EmailAlreadyInUseError, UserAlreadyVerifiedError, UserNotVerifiedError, WrongUsageError
+from .constants import TokenAction
+from .exceptions import EmailAlreadyInUseError, UserAlreadyVerifiedError, WrongUsageError
 from .settings import graphql_auth_settings as app_settings
 from .signals import user_verified
 from .utils import get_token, get_token_payload
@@ -40,7 +40,7 @@ class UserStatus(models.Model):
             from_email=app_settings.EMAIL_FROM,
             message=message,
             html_message=html_message,
-            recipient_list=(recipient_list or [getattr(self.user, UserModel.EMAIL_FIELD)]),
+            recipient_list=(recipient_list or [getattr(self.user, UserModel.EMAIL_FIELD)]),  # type: ignore
             fail_silently=False,
         )
 
@@ -102,18 +102,10 @@ class UserStatus(models.Model):
         return self.send(subject, template, email_context, recipient_list=[email])
 
     @classmethod
-    def email_is_free(cls, email):
-        try:
-            UserModel._default_manager.get(**{UserModel.EMAIL_FIELD: email})
-            return False
-        except Exception:
-            pass
-        try:
-            UserStatus._default_manager.get(secondary_email=email)
-            return False
-        except Exception:
-            pass
-        return True
+    def email_is_free(cls, email) -> bool:
+        return not UserModel._default_manager.filter(
+            models.Q(**{UserModel.EMAIL_FIELD: email}) | models.Q(status__secondary_email=email)  # type: ignore
+        ).exists()
 
     @classmethod
     def clean_email(cls, email=False):
@@ -150,10 +142,9 @@ class UserStatus(models.Model):
 
     @classmethod
     def unarchive(cls, user):
-        user_status = cls.objects.get(user=user)
-        if user_status.archived is True:
-            user_status.archived = False
-            user_status.save(update_fields=["archived"])
+        if user.status.archived is True:
+            user.status.archived = False
+            user.status.save()
 
     @classmethod
     def archive(cls, user):
@@ -166,7 +157,7 @@ class UserStatus(models.Model):
         if not self.secondary_email:
             raise WrongUsageError
         with transaction.atomic():
-            EMAIL_FIELD = UserModel.EMAIL_FIELD
+            EMAIL_FIELD = UserModel.EMAIL_FIELD  # type: ignore
             primary = getattr(self.user, EMAIL_FIELD)
             setattr(self.user, EMAIL_FIELD, self.secondary_email)
             self.secondary_email = primary

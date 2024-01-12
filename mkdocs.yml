@@ -1,9 +1,9 @@
 site_name: Django GraphQL Auth
 site_description: GraphQL authentication for Django
-site_url: https://django-graphql-auth.readthedocs.io/en/latest
-site_author: pedrobern
-repo_name: pedrobern/django-graphql-auth
-repo_url: https://github.com/pedrobern/django-graphql-auth
+site_url: https://django-graphene-auth.readthedocs.io/en/latest
+site_author: ptbang
+repo_name: ptbang/django-graphene-auth
+repo_url: https://github.com/ptbang/django-graphene-auth
 
 theme:
   name: "material"
@@ -17,7 +17,7 @@ theme:
 extra:
   social:
     - type: github-alt
-      link: https://github.com/pedrobern
+      link: https://github.com/ptbang
 
 google_analytics:
   - 'UA-152567868-2'
@@ -53,12 +53,7 @@ dev_addr: 127.0.0.1:7000
 nav:
   - Start here: index.md
   - Installation: installation.md
-  - Quickstart: quickstart.md
   - Overriding email templates: overriding-email-templates.md
-  - Relay: relay.md
   - Settings: settings.md
   - API: api.md
-  - Contributing: contributing.md
-  - Community: community.md
   - Changelog: changelog.md
-  - Contributors: contributors.md

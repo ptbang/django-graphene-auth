@@ -3,18 +3,13 @@
 [Django](https://github.com/django/django) registration and authentication with GraphQL.
 
 
-[![downloads](https://img.shields.io/pypi/dm/django-graphql-auth)](https://pypistats.org/packages/django-graphql-auth)
-[![Codecov Coverage](https://img.shields.io/codecov/c/github/pedrobern/django-graphql-auth/master.svg?style=flat-square)](https://codecov.io/gh/pedrobern/django-graphql-auth/)
-[![Build Status](https://travis-ci.com/pedrobern/django-graphql-auth.svg?branch=master)](https://travis-ci.com/pedrobern/django-graphql-auth)
-[![Pypi](https://img.shields.io/pypi/v/django-graphql-auth.svg)](https://pypi.org/project/django-graphql-auth/)
-[![Documentation Status](https://readthedocs.org/projects/django-graphql-auth/badge/?version=latest)](https://django-graphql-auth.readthedocs.io/en/latest/?badge=latest)
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/pedrobern/django-graphql-auth/blob/master/CONTRIBUTING.md)
+[![downloads](https://img.shields.io/pypi/dm/django-graphene-auth)](https://pypistats.org/packages/django-graphene-auth)
+[![Codecov Coverage](https://img.shields.io/codecov/c/github/ptbang/django-graphene-auth/master.svg?style=flat-square)](https://codecov.io/gh/ptbang/django-graphene-auth/)
+[![Pypi](https://img.shields.io/pypi/v/django-graphene-auth.svg)](https://pypi.org/project/django-graphene-auth/)
+[![Documentation Status](https://readthedocs.org/projects/django-graphene-auth/badge/?version=latest)](https://django-graphene-auth.readthedocs.io/en/latest/?badge=latest)
+
 
 ---
-
-## Demo
-
-[![Demo Video](images/demo.jpg)](https://github.com/pedrobern/django-graphql-auth#demo)
 
 ## About
 
@@ -100,4 +95,4 @@ u.status.verified
 # True
 ```
 
-Check the [installation guide](installation.md) or jump to the [quickstart](quickstart.md). Or if you prefer, browse the [api](api.md).
+Check the [installation guide](installation.md). Or if you prefer, browse the [api](api.md).

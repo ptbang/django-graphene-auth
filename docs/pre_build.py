@@ -1,6 +1,6 @@
 """
 - get class names and docstrings as context variables into the docs
-- copy [CONTRIBUTORS, CHANGES, CONTRIBUTING] files to the docs dir
+- copy [CHANGES] files to the docs dir
 """
 
 import os
@@ -38,8 +38,8 @@ with open(destination, "w") as file:
 
 
 # copy files from project root to docs dir
-files = ["CONTRIBUTORS.md", "CHANGES.md", "CONTRIBUTING.md"]
-dest = ["contributors.md", "changelog.md", "contributing.md"]
+files = ["CHANGES.md"]
+dest = ["changelog.md"]
 for index, file in enumerate(files):
     shutil.copyfile(
         current_dir + "/" + file, current_dir + "/docs/" + dest[index]

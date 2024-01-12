@@ -1,9 +1,9 @@
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm, UsernameField
-from django.contrib.auth import get_user_model
 from django import forms
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserChangeForm, UserCreationForm, UsernameField
 
-from .utils import flat_dict
 from .settings import graphql_auth_settings as app_settings
+from .utils import flat_dict
 
 
 class RegisterForm(UserCreationForm):
@@ -30,7 +30,7 @@ class UpdateAccountForm(UserChangeForm):
 
     def __init__(self, *args, **kwargs):
         super(UpdateAccountForm, self).__init__(*args, **kwargs)
-        for key, field in self.fields.items():
+        for key in self.fields.keys():
             self.fields[key].required = False
 
 

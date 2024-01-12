@@ -8,10 +8,10 @@ check-readme:
 install-local:
 	rm -rf dist build django_graphql_auth.egg-info
 	python setup.py sdist bdist_wheel
-	python -m pip install dist/django-graphql-auth-${v}.tar.gz
+	python -m pip install dist/django-graphene-auth-${v}.tar.gz
 
-p ?= 38
-d ?= 30
+p ?= 310
+d ?= 42
 
 test:
 	tox -e py${p}-django${d} -- --cov-report term-missing --cov-report html

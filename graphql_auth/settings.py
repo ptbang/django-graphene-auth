@@ -73,7 +73,7 @@ DEFAULTS = {
     # string path for email function wrapper, see the testproject example
     'EMAIL_ASYNC_TASK': False,
     # # mutation error type
-    # 'CUSTOM_ERROR_TYPE': None,
+    'CUSTOM_ERROR_TYPE': None,
     # registration with no password
     'ALLOW_PASSWORDLESS_REGISTRATION': False,
     'SEND_PASSWORD_SET_EMAIL': False,
@@ -115,7 +115,7 @@ class GraphQLAuthSettings(object):
         return val
 
     @property
-    def is_declared_async_email(self) -> bool:
+    def is_async_email(self) -> bool:
         try:
             return self._is_declared_async_email
         except AttributeError:

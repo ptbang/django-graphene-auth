@@ -1,36 +1,33 @@
-# Django GraphQL Auth
+# Django Graphene Auth
 
-[Django](https://github.com/django/django) registration and authentication with GraphQL.
+[Django](https://github.com/django/django) GraphQL registration and authentication
+compatible with the latest versions of Django, Django GraphQL JWT
 
-[![downloads](https://img.shields.io/pypi/dm/django-graphql-auth)](https://pypistats.org/packages/django-graphql-auth)
-[![Codecov Coverage](https://img.shields.io/codecov/c/github/pedrobern/django-graphql-auth/master.svg?style=flat-square)](https://codecov.io/gh/pedrobern/django-graphql-auth/)
-[![Build Status](https://travis-ci.com/pedrobern/django-graphql-auth.svg?branch=master)](https://travis-ci.com/pedrobern/django-graphql-auth)
-[![Pypi](https://img.shields.io/pypi/v/django-graphql-auth.svg)](https://pypi.org/project/django-graphql-auth/)
-[![Documentation Status](https://readthedocs.org/projects/django-graphql-auth/badge/?version=latest)](https://django-graphql-auth.readthedocs.io/en/latest/?badge=latest)
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/pedrobern/django-graphql-auth/blob/master/CONTRIBUTING.md)
+[![downloads](https://img.shields.io/pypi/dm/django-graphene-auth)](https://pypistats.org/packages/django-graphene-auth)
+[![Codecov Coverage](https://img.shields.io/codecov/c/github/ptbang/django-graphene-auth)](https://app.codecov.io/github/ptbang/django-graphene-auth/tree)
+[![Pypi](https://img.shields.io/pypi/v/django-graphene-auth.svg)](https://pypi.org/project/django-graphen-auth/)
+[![Documentation Status](https://readthedocs.org/projects/django-graphene-auth/badge/?version=latest)](https://django-graphene-auth.readthedocs.io/en/latest/?badge=latest)
 
-## Demo
-
-![Demo Video](https://github.com/pedrobern/django-graphql-auth/blob/master/demo.gif)
 
 ## About
 
-Abstract all the basic logic of handling user accounts out of your app,
-so you don't need to think about it and can **get up and running faster**.
+This project was based on the forked repository from
+[Django GraphQL Auth](https://github.com/PedroBern/django-graphql-auth) -
+created by *Pedro Bern* (thanks so much for a great job).
 
-No lock-in. When you are ready to implement your own code or this package
-is not up to your expectations , it's *easy to extend or switch to
-your implementation*.
+The reason I decided to create this project is that the original doesn't support
+the newer versions of django, graphene-django and django-graphql-jwt.
+Futhermore, it appears that the original one will not be further developed in the near future.
 
 
 ## Documentation
 
-Documentation is available at [read the docs](https://django-graphql-auth.readthedocs.io/en/latest/).
+Documentation is available at [read the docs](https://django-graphene-auth.readthedocs.io/en/latest/).
 
 
 ## Features
 
-* [x] [Awesome docs](https://django-graphql-auth.readthedocs.io/en/latest/) :tada:
+* [x] [Docs](https://django-graphene-auth.readthedocs.io/en/latest/) :tada:
 * [x] Fully compatible with [Relay](https://github.com/facebook/relay>)
 * [x] Works with **default or custom** user model
 * [x] JWT authentication *(with [Django GraphQL JWT](https://github.com/flavors/django-graphql-jwt))*
@@ -121,9 +118,8 @@ mutation {
     password2: "123456super",
   ) {
     success,
-    errors,
-    token,
-    refreshToken
+    token,  # optional, depending on settings of GRAPHQL_AUTH['ALLOW_LOGIN_NOT_VERIFIED']
+    refreshToken  # optional, depending on settings of GRAPHQL_JWT['JWT_LONG_RUNNING_REFRESH_TOKEN']
   }
 }
 ```
@@ -143,8 +139,7 @@ mutation {
   verifyAccount(
     token:"<TOKEN ON EMAIL LINK>",
   ) {
-    success,
-    errors
+    success
   }
 }
 ```
@@ -156,9 +151,4 @@ u.status.verified
 # True
 ```
 
-Check the [installation guide](https://django-graphql-auth.readthedocs.io/en/latest/installation/) or jump to the [quickstart](https://django-graphql-auth.readthedocs.io/en/latest/quickstart/). Or if you prefer, browse the [api](https://django-graphql-auth.readthedocs.io/en/latest/api/).
-
-
-## Contributing
-
-See [CONTRIBUTING.md](https://github.com/pedrobern/django-graphql-auth/blob/master/CONTRIBUTING.md)
+Check the [installation guide](https://django-graphene-auth.readthedocs.io/en/latest/installation/). Or if you prefer, browse the [api](https://django-graphene-auth.readthedocs.io/en/latest/api/).

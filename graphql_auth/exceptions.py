@@ -1,14 +1,13 @@
 from typing import Any, Collection
 
 from django.utils.translation import gettext as _
-from graphql import GraphQLError, GraphQLErrorExtensions, GraphQLFormattedError
+from graphql import GraphQLError, GraphQLErrorExtensions
 from graphql.language.ast import Node
 from graphql.language.source import Source
 
 from graphql_auth.constants import Messages
 
 
-# class GraphQLAuthError(Exception):
 class GraphQLAuthError(GraphQLError):
     default_message: str = _('Not described message.')
     _extensions: dict[str, Any] = {}
@@ -60,9 +59,7 @@ class PasswordAlreadySetError(GraphQLAuthError):
 
 
 class WrongUsageError(GraphQLAuthError):
-    """
-    internal exception
-    """
+    """internal exception"""
 
     default_message = _("Wrong usage, check your code!.")
 

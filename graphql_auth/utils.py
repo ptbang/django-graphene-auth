@@ -5,8 +5,9 @@ from importlib import import_module
 
 from django.conf import settings as django_settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractBaseUser
 from django.core import signing
-from django.core.signing import BadSignature
+from django.utils.translation import gettext as _
 from graphene_django.utils import camelize
 
 from .exceptions import TokenScopeError
@@ -43,14 +44,6 @@ def get_token_paylod(token, action, exp=None):
 
 
 def using_refresh_tokens():
-    # if (
-    #     hasattr(django_settings, "GRAPHQL_JWT")
-    #     and django_settings.GRAPHQL_JWT.get("JWT_LONG_RUNNING_REFRESH_TOKEN", False)
-    #     and "graphql_jwt.refresh_token.apps.RefreshTokenConfig"
-    #     in django_settings.INSTALLED_APPS
-    # ):
-    #     return True
-    # return False
     return (
         hasattr(django_settings, "GRAPHQL_JWT")
         and django_settings.GRAPHQL_JWT.get("JWT_LONG_RUNNING_REFRESH_TOKEN", False)
@@ -76,17 +69,17 @@ def flat_dict(dict_or_list):
     return list(dict_or_list.keys()) if isinstance(dict_or_list, dict) else dict_or_list
 
 
-# def normalize_fields(dict_or_list, extra_list):
-#     """
-#     helper merge settings defined fileds and
-#     other fields on mutations
-#     """
-#     if isinstance(dict_or_list, dict):
-#         for i in extra_list:
-#             dict_or_list[i] = "String"
-#         return dict_or_list
-#     else:
-#         return dict_or_list + extra_list
+def normalize_fields(dict_or_list, extra_list):
+    """
+    helper merge settings defined fileds and
+    other fields on mutations
+    """
+    if isinstance(dict_or_list, dict):
+        for i in extra_list:
+            dict_or_list[i] = "String"
+        return dict_or_list
+    else:
+        return dict_or_list + extra_list
 
 
 def get_classes(module: str | types.ModuleType, class_type: type | None = None) -> list[tuple[str, type]]:
@@ -104,4 +97,13 @@ def camelize_form_errors(errors: dict) -> dict:
     """Camelize dict of django form errors"""
     if errors.get('__all__', False):
         errors['non_field_errors'] = errors.pop('__all__')
-    return camelize(errors)
+    return camelize(errors)  # type: ignore
+
+
+def get_user_by_natural_key(username) -> AbstractBaseUser | None:
+    """
+    A difference approach from the original method (graphql_jwt.utils.get_user_by_natural_key)
+    is using `select_related('status')`
+    """
+    UserModel = get_user_model()
+    return UserModel._default_manager.select_related('status').filter(**{UserModel.USERNAME_FIELD: username}).first()  # type: ignore

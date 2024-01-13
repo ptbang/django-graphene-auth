@@ -61,8 +61,7 @@ plugins:
   - search
   - minify:
       minify_html: true
-  - markdownextradata:
-        data: docs/data
+  - markdownextradata
 
 dev_addr: 127.0.0.1:7000
 

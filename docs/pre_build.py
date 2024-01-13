@@ -4,14 +4,13 @@
 """
 
 import os
-import shutil
 import re
-
+import shutil
 
 # copy mixins file from .py to .yml
 current_dir = os.path.abspath(os.path.split(os.path.split(__file__)[0])[0])
 source = current_dir + "/graphql_auth/mixins.py"
-destination = current_dir + "/docs/data/api.yml"
+destination = current_dir + "/docs/_data/api.yml"
 dest = shutil.copyfile(source, destination)
 
 # get the text content
@@ -41,6 +40,4 @@ with open(destination, "w") as file:
 files = ["CHANGES.md"]
 dest = ["changelog.md"]
 for index, file in enumerate(files):
-    shutil.copyfile(
-        current_dir + "/" + file, current_dir + "/docs/" + dest[index]
-    )
+    shutil.copyfile(current_dir + "/" + file, current_dir + "/docs/" + dest[index])

@@ -5,7 +5,7 @@ compatible with the latest versions of Django, Django GraphQL JWT
 
 [![downloads](https://img.shields.io/pypi/dm/django-graphene-auth)](https://pypistats.org/packages/django-graphene-auth)
 [![Codecov Coverage](https://img.shields.io/codecov/c/github/ptbang/django-graphene-auth)](https://app.codecov.io/github/ptbang/django-graphene-auth/tree)
-[![Pypi](https://img.shields.io/pypi/v/django-graphene-auth.svg)](https://pypi.org/project/django-graphen-auth/)
+[![Pypi](https://img.shields.io/pypi/v/django-graphene-auth.svg)](https://pypi.org/project/django-graphene-auth/)
 [![Documentation Status](https://readthedocs.org/projects/django-graphene-auth/badge/?version=latest)](https://django-graphene-auth.readthedocs.io/en/latest/?badge=latest)
 
 

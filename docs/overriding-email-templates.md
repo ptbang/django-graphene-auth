@@ -23,17 +23,17 @@ TEMPLATES = [
 Create the following folder and files structure:
 
 
-```bash hl_lines="3 4 5 6 7 8"
+```
 - project_name/
     - project_name/
     - templates/
-        email/
-          activation_email.html
-          activation_subject.txt
-          password_reset_email.html
-          password_reset_subject.txt
-      db.sqlite3
-      manage.py
+        - email/
+            activation_email.html
+            activation_subject.txt
+            password_reset_email.html
+            password_reset_subject.txt
+    db.sqlite3
+    manage.py
 ```
 
 This is the minimum. Check the [email templates settings](settings.md), you can create custom templates for:
@@ -65,14 +65,15 @@ Write your templates like this:
 
 ```html
 <!-- activation_email.html -->
-
+{% raw %}
 <h3>{{ site_name }}</h3>
 
-<p>Hello \{{ user.username }}!</p>
+<p>Hello {{ user.username }}!</p>
 
 <p>Please activate your account on the link:</p>
 
 <p>{{ protocol }}://{{ domain }}/{{ path }}/{{ token }}</p>
+{% endraw %}
 ```
 
 Provide only the `html` template. It will be converted to `text` later.

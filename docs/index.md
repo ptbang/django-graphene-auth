@@ -1,6 +1,7 @@
-# Django GraphQL Auth
+# Django Graphene Auth
 
-[Django](https://github.com/django/django) registration and authentication with GraphQL.
+[Django](https://github.com/django/django) registration and authentication with GraphQL
+with support for most newest versions of Django, Django Graphene, Django GraphQL JWT
 
 
 [![downloads](https://img.shields.io/pypi/dm/django-graphene-auth)](https://pypistats.org/packages/django-graphene-auth)
@@ -13,18 +14,19 @@
 
 ## About
 
-Abstract all the basic logic of handling user accounts out of your app,
-so you don't need to think about it and can ==get up and running faster==.
+This project was based on the forked repository from
+[Django GraphQL Auth](https://github.com/PedroBern/django-graphql-auth) -
+created by *Pedro Bern* (thanks so much for a great job).
 
-No lock-in. When you are ready to implement your own code or this package
-is not up to your expectations , it's ^^easy to extend or switch to
-your implementation^^.
+The reason I decided to create this project is that the original doesn't support
+the newer versions of django, graphene-django and django-graphql-jwt.
+Futhermore, it appears that the original one will not be further developed in the near future.
 
 ---
 
 ## Features
 
-* [x] Awesome docs!
+* [x] Awesome docs! (big thanks for *Pedro Bern*)
 * [x] Fully compatible with [Relay](https://github.com/facebook/relay>)
 * [x] Works with ==default or custom== user model
 * [x] JWT authentication <small>(with [Django GraphQL JWT](https://github.com/flavors/django-graphql-jwt))</small>
@@ -51,13 +53,13 @@ your implementation^^.
 
 Handling user accounts becomes super easy.
 
-```python
+```graphql
 mutation {
   register(
     email: "new_user@email.com",
     username: "new_user",
     password1: "123456super",
-    password2: "123456super",
+    password2: "123456super"
   ) {
     success,
     errors,

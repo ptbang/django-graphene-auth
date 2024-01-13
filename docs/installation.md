@@ -45,87 +45,89 @@ The following are the minimum steps required to get it running.
 
 In your schema, add the following:
 
-```python tab="GraphQL"
+=== "GraphQL"
+    ```python
 
-import graphene
+    import graphene
 
-from graphql_auth.schema import UserQuery, MeQuery
-from graphql_auth import mutations
+    from graphql_auth.schema import UserQuery, MeQuery
+    from graphql_auth import mutations
 
-class AuthMutation(graphene.ObjectType):
-    register = mutations.Register.Field()
-    verify_account = mutations.VerifyAccount.Field()
-    resend_activation_email = mutations.ResendActivationEmail.Field()
-    send_password_reset_email = mutations.SendPasswordResetEmail.Field()
-    password_reset = mutations.PasswordReset.Field()
-    password_set = mutations.PasswordSet.Field() # For passwordless registration
-    password_change = mutations.PasswordChange.Field()
-    update_account = mutations.UpdateAccount.Field()
-    archive_account = mutations.ArchiveAccount.Field()
-    delete_account = mutations.DeleteAccount.Field()
-    send_secondary_email_activation =  mutations.SendSecondaryEmailActivation.Field()
-    verify_secondary_email = mutations.VerifySecondaryEmail.Field()
-    swap_emails = mutations.SwapEmails.Field()
-    remove_secondary_email = mutations.RemoveSecondaryEmail.Field()
+    class AuthMutation(graphene.ObjectType):
+        register = mutations.Register.Field()
+        verify_account = mutations.VerifyAccount.Field()
+        resend_activation_email = mutations.ResendActivationEmail.Field()
+        send_password_reset_email = mutations.SendPasswordResetEmail.Field()
+        password_reset = mutations.PasswordReset.Field()
+        password_set = mutations.PasswordSet.Field() # For passwordless registration
+        password_change = mutations.PasswordChange.Field()
+        update_account = mutations.UpdateAccount.Field()
+        archive_account = mutations.ArchiveAccount.Field()
+        delete_account = mutations.DeleteAccount.Field()
+        send_secondary_email_activation =  mutations.SendSecondaryEmailActivation.Field()
+        verify_secondary_email = mutations.VerifySecondaryEmail.Field()
+        swap_emails = mutations.SwapEmails.Field()
+        remove_secondary_email = mutations.RemoveSecondaryEmail.Field()
 
-    # django-graphql-jwt inheritances
-    token_auth = mutations.ObtainJSONWebToken.Field()
-    verify_token = mutations.VerifyToken.Field()
-    refresh_token = mutations.RefreshToken.Field()
-    revoke_token = mutations.RevokeToken.Field()
-
-
-class Query(UserQuery, MeQuery, graphene.ObjectType):
-    pass
+        # django-graphql-jwt inheritances
+        token_auth = mutations.ObtainJSONWebToken.Field()
+        verify_token = mutations.VerifyToken.Field()
+        refresh_token = mutations.RefreshToken.Field()
+        revoke_token = mutations.RevokeToken.Field()
 
 
-class Mutation(AuthMutation, graphene.ObjectType):
-    pass
+    class Query(UserQuery, MeQuery, graphene.ObjectType):
+        pass
 
 
-schema = graphene.Schema(query=Query, mutation=Mutation)
-```
-
-```python tab="Relay"
-
-import graphene
-
-from graphql_auth.schema import UserQuery, MeQuery
-from graphql_auth import relay
-
-class AuthRelayMutation(graphene.ObjectType):
-    register = relay.Register.Field()
-    verify_account = relay.VerifyAccount.Field()
-    resend_activation_email = relay.ResendActivationEmail.Field()
-    send_password_reset_email = relay.SendPasswordResetEmail.Field()
-    password_reset = relay.PasswordReset.Field()
-    password_set = relay.PasswordSet.Field() # For passwordless registration
-    password_change = relay.PasswordChange.Field()
-    update_account = relay.UpdateAccount.Field()
-    archive_account = relay.ArchiveAccount.Field()
-    delete_account = relay.DeleteAccount.Field()
-    send_secondary_email_activation =  relay.SendSecondaryEmailActivation.Field()
-    verify_secondary_email = relay.VerifySecondaryEmail.Field()
-    swap_emails = relay.SwapEmails.Field()
-    remove_secondary_email = mutations.RemoveSecondaryEmail.Field()
-
-    # django-graphql-jwt inheritances
-    token_auth = relay.ObtainJSONWebToken.Field()
-    verify_token = relay.VerifyToken.Field()
-    refresh_token = relay.RefreshToken.Field()
-    revoke_token = relay.RevokeToken.Field()
+    class Mutation(AuthMutation, graphene.ObjectType):
+        pass
 
 
-class Query(UserQuery, MeQuery, graphene.ObjectType):
-    pass
+    schema = graphene.Schema(query=Query, mutation=Mutation)
+    ```
+
+=== "Relay"
+    ```python
+
+    import graphene
+
+    from graphql_auth.schema import UserQuery, MeQuery
+    from graphql_auth import relay
+
+    class AuthRelayMutation(graphene.ObjectType):
+        register = relay.Register.Field()
+        verify_account = relay.VerifyAccount.Field()
+        resend_activation_email = relay.ResendActivationEmail.Field()
+        send_password_reset_email = relay.SendPasswordResetEmail.Field()
+        password_reset = relay.PasswordReset.Field()
+        password_set = relay.PasswordSet.Field() # For passwordless registration
+        password_change = relay.PasswordChange.Field()
+        update_account = relay.UpdateAccount.Field()
+        archive_account = relay.ArchiveAccount.Field()
+        delete_account = relay.DeleteAccount.Field()
+        send_secondary_email_activation =  relay.SendSecondaryEmailActivation.Field()
+        verify_secondary_email = relay.VerifySecondaryEmail.Field()
+        swap_emails = relay.SwapEmails.Field()
+        remove_secondary_email = mutations.RemoveSecondaryEmail.Field()
+
+        # django-graphql-jwt inheritances
+        token_auth = relay.ObtainJSONWebToken.Field()
+        verify_token = relay.VerifyToken.Field()
+        refresh_token = relay.RefreshToken.Field()
+        revoke_token = relay.RevokeToken.Field()
 
 
-class Mutation(AuthRelayMutation, graphene.ObjectType):
-    pass
+    class Query(UserQuery, MeQuery, graphene.ObjectType):
+        pass
 
 
-schema = graphene.Schema(query=Query, mutation=Mutation)
-```
+    class Mutation(AuthRelayMutation, graphene.ObjectType):
+        pass
+
+
+    schema = graphene.Schema(query=Query, mutation=Mutation)
+    ```
 
 ---
 
@@ -133,41 +135,43 @@ schema = graphene.Schema(query=Query, mutation=Mutation)
 
 On your `#!python GRAPHQL_JWT["JWT_ALLOW_ANY_CLASSES"]` setting, add the following:
 
-```python tab="GraphQL"
-GRAPHQL_JWT = {
-    #...
-    "JWT_ALLOW_ANY_CLASSES": [
-        "graphql_auth.mutations.Register",
-        "graphql_auth.mutations.VerifyAccount",
-        "graphql_auth.mutations.ResendActivationEmail",
-        "graphql_auth.mutations.SendPasswordResetEmail",
-        "graphql_auth.mutations.PasswordReset",
-        "graphql_auth.mutations.ObtainJSONWebToken",
-        "graphql_auth.mutations.VerifyToken",
-        "graphql_auth.mutations.RefreshToken",
-        "graphql_auth.mutations.RevokeToken",
-        "graphql_auth.mutations.VerifySecondaryEmail",
-    ],
-}
-```
+=== "GraphQL"
+    ```python
+    GRAPHQL_JWT = {
+        #...
+        "JWT_ALLOW_ANY_CLASSES": [
+            "graphql_auth.mutations.Register",
+            "graphql_auth.mutations.VerifyAccount",
+            "graphql_auth.mutations.ResendActivationEmail",
+            "graphql_auth.mutations.SendPasswordResetEmail",
+            "graphql_auth.mutations.PasswordReset",
+            "graphql_auth.mutations.ObtainJSONWebToken",
+            "graphql_auth.mutations.VerifyToken",
+            "graphql_auth.mutations.RefreshToken",
+            "graphql_auth.mutations.RevokeToken",
+            "graphql_auth.mutations.VerifySecondaryEmail",
+        ],
+    }
+    ```
 
-```python tab="Relay"
-GRAPHQL_JWT = {
-    #...
-    "JWT_ALLOW_ANY_CLASSES": [
-        "graphql_auth.relay.Register",
-        "graphql_auth.relay.VerifyAccount",
-        "graphql_auth.relay.ResendActivationEmail",
-        "graphql_auth.relay.SendPasswordResetEmail",
-        "graphql_auth.relay.PasswordReset",
-        "graphql_auth.relay.ObtainJSONWebToken",
-        "graphql_auth.relay.VerifyToken",
-        "graphql_auth.relay.RefreshToken",
-        "graphql_auth.relay.RevokeToken",
-        "graphql_auth.relay.VerifySecondaryEmail",
-    ],
-}
-```
+=== "Relay"
+    ```python
+    GRAPHQL_JWT = {
+        #...
+        "JWT_ALLOW_ANY_CLASSES": [
+            "graphql_auth.relay.Register",
+            "graphql_auth.relay.VerifyAccount",
+            "graphql_auth.relay.ResendActivationEmail",
+            "graphql_auth.relay.SendPasswordResetEmail",
+            "graphql_auth.relay.PasswordReset",
+            "graphql_auth.relay.ObtainJSONWebToken",
+            "graphql_auth.relay.VerifyToken",
+            "graphql_auth.relay.RefreshToken",
+            "graphql_auth.relay.RevokeToken",
+            "graphql_auth.relay.VerifySecondaryEmail",
+        ],
+    }
+    ```
 
 ---
 
@@ -195,7 +199,7 @@ AUTHENTICATION_BACKENDS = [
     # remove this
     # "graphql_jwt.backends.JSONWebTokenBackend",
 
-    # add this
+    # add add this
     "graphql_auth.backends.GraphQLAuthBackend",
 
     # ...
@@ -231,7 +235,7 @@ AUTHENTICATION_BACKENDS = [
 Refresh tokens are optional and this package will work with the default token
 from [Django GraphQL JWT](https://github.com/flavors/django-graphql-jwt).
 
-Follow the [offitial docs](https://django-graphql-jwt.domake.io/en/latest/refresh_token.html#long-running-refresh-tokens) or simply add the following to your ``settings.py``:
+Follow the [official docs](https://django-graphql-jwt.domake.io/en/latest/refresh_token.html#long-running-refresh-tokens) or simply add the following to your ``settings.py``:
 
 ```python
 INSTALLED_APPS = [
@@ -248,7 +252,7 @@ GRAPHQL_JWT = {
 
 And remember to migrate:
 
-```bash
+```python
 python manage.py migrate
 ```
 

@@ -8,16 +8,29 @@ repo_url: https://github.com/ptbang/django-graphene-auth
 theme:
   name: "material"
   language: en
-  palette:
-    primary: 'black'
-    accent: 'purple'
   logo: 'images/graphql_logo.svg'
   favicon: 'images/favicon.ico'
-
-extra:
-  social:
-    - type: github-alt
-      link: https://github.com/ptbang
+  features:
+    - content.code.copy
+    - content.code.select
+  font:
+    text: Roboto
+    code: Roboto Mono
+  palette:
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
 
 markdown_extensions:
   - admonition
@@ -32,7 +45,14 @@ markdown_extensions:
   - pymdownx.magiclink
   - pymdownx.mark
   - pymdownx.smartsymbols
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.snippets
   - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde

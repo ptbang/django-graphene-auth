@@ -27,7 +27,7 @@ Documentation is available at [read the docs](https://django-graphene-auth.readt
 
 ## Features
 
-* [x] [Docs](https://django-graphene-auth.readthedocs.io/en/latest/) :tada:
+* [x] [Docs](https://django-graphene-auth.readthedocs.io/en/latest/)
 * [x] Fully compatible with [Relay](https://github.com/facebook/relay>)
 * [x] Works with **default or custom** user model
 * [x] JWT authentication *(with [Django GraphQL JWT](https://github.com/flavors/django-graphql-jwt))*

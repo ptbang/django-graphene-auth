@@ -121,7 +121,8 @@ UpdateAccount: |
     User must be verified.
     
 VerifyOrRefreshOrRevokeToken: |
-    Same as `grapgql_jwt` implementation, with standard output.
+    Same as `grapgql_jwt` implementation,
+    with change exception error message from "Error decoding signature" to "Invalid token.".
     
 SendSecondaryEmailActivation: |
     Send activation to secondary email.

@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from .testCases import BaseTestCase
+from .base_test_case import BaseTestCase
 from graphql_auth.constants import Messages
 from graphql_auth.utils import get_token
 from graphql_auth.signals import user_verified

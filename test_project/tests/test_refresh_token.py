@@ -1,7 +1,7 @@
 import json
 from datetime import timedelta
 
-from .testCases import BaseTestCase
+from .base_test_case import BaseTestCase
 from graphql_auth.constants import Messages
 
 

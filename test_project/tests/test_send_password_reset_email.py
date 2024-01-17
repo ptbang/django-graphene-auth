@@ -7,7 +7,7 @@ from django.core import mail
 from graphql_auth.constants import Messages
 from graphql_auth.exceptions import InvalidEmailAddressError
 
-from .testCases import BaseTestCase
+from .base_test_case import BaseTestCase
 
 
 class SendPasswordResetEmailBaseTestCase(BaseTestCase):

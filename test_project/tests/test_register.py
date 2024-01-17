@@ -7,7 +7,7 @@ from graphql_auth.constants import Messages
 from graphql_auth.exceptions import EmailAlreadyInUseError
 from graphql_auth.signals import user_registered
 
-from .testCases import BaseTestCase
+from .base_test_case import BaseTestCase
 
 
 class RegisterBaseTestCase(BaseTestCase):

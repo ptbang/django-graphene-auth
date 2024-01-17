@@ -1,6 +1,6 @@
 from graphql_auth.constants import Messages
 
-from .testCases import BaseTestCase
+from .base_test_case import BaseTestCase
 
 
 class SwapEmailsBaseTestCase(BaseTestCase):

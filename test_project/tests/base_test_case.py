@@ -7,13 +7,10 @@ from typing import Any
 import django
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
-from django.test import RequestFactory, TestCase
-from graphene.test import Client
-from graphene.types.schema import Schema
+from django.test import RequestFactory
 from graphene_django.utils.testing import GraphQLTestCase
 
 from graphql_auth.models import UserStatus
-from graphql_auth.utils import get_classes
 
 from .schema import default_schema, relay_schema
 
@@ -96,33 +93,3 @@ class BaseTestCase(GraphQLTestCase, metaclass=TestCaseMeta):
             raise Exception(executed["errors"])
         finally:
             pprint.pprint(executed)
-
-
-# class RelayTestCase(TestBase):
-#     def make_request(self, *args, **kwargs):
-#         client = Client(relay_schema)
-#         return super().make_request(client=client, *args, **kwargs)
-
-
-# class DefaultTestCase(TestBase):
-#     def make_request(self, *args, **kwargs):
-#         client = Client(default_schema)
-#         return super().make_request(client=client, *args, **kwargs)
-
-
-# def set_test_methods(test_classes: list[type[BaseTestCase]]) -> None:
-#     for test_class in test_classes:
-#         test_methods = [method for method in dir(test_class) if method.startswith('_test_')]
-#         for method in test_methods:
-#             setattr(test_class, method[1:], getattr(test_class, method))
-
-
-# def prepare_test_classes(module: str | types.ModuleType) -> None:
-#     """
-#     Sets test methods from defined methods, which names start by prefix "_test_"
-#     for all test class inside the module.
-#     """
-#     test_classes = get_classes(module, BaseTestCase)
-#     for test_class in test_classes:
-#         if not test_class[0].endswith('BaseTestCase'):
-#             set_test_methods([test_class[1]])

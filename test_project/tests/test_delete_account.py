@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from graphql_auth.constants import Messages
 
-from .testCases import BaseTestCase
+from .base_test_case import BaseTestCase
 
 
 class DeleteAccountBaseTestCase(BaseTestCase):

@@ -2,7 +2,7 @@ from graphql_auth.constants import Messages
 from graphql_auth.exceptions import EmailAlreadyInUseError
 from graphql_auth.utils import get_token
 
-from .testCases import BaseTestCase
+from .base_test_case import BaseTestCase
 
 
 class VerifySecondaryEmailBaseTestCase(BaseTestCase):

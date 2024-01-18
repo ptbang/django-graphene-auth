@@ -24,6 +24,7 @@ __pycache__
 /build
 /coverage.xml
 /dist
+/dist_archive
 /docs/_build
 /site
 

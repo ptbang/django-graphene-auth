@@ -1,6 +1,7 @@
 from smtplib import SMTPException
 
 import graphene
+from graphene.types.generic import GenericScalar
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 from django.core.exceptions import ObjectDoesNotExist
@@ -357,6 +358,8 @@ class ObtainJSONWebTokenMixin(SuccessErrorsOutput):
     return `unarchiving=True` on output.
     """
 
+    refresh_expires_in = graphene.Int()
+    payload = GenericScalar()
     user = graphene.Field(UserNode)
     unarchiving = graphene.Boolean(default_value=False)
 

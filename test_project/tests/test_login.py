@@ -52,6 +52,9 @@ class LoginBaseTestCase(BaseTestCase):
         self.assertTrue(result['success'])
         self.assertIsNone(result['errors'])
         self.assertTrue(result["token"])
+        self.assertTrue(result["payload"])
+        self.assertTrue(result["refreshExpiresIn"])
+        self.assertTrue(result["refreshToken"])
         self.assertTrue(result["refreshToken"])
         self.assertFalse(result['unarchiving'])
 
@@ -98,6 +101,8 @@ class LoginBaseTestCase(BaseTestCase):
         self.assertEqual(result['errors'], Messages.INVALID_CREDENTIALS)
         self.assertIsNone(result["token"])
         self.assertIsNone(result["refreshToken"])
+        self.assertIsNone(result["payload"])
+        self.assertIsNone(result["refreshExpiresIn"])
 
     def _test_login_failed_by_wrong_password(self):
         query = self.get_query("username", self.verified_user.username, "wrongpass")  # type: ignore
@@ -138,7 +143,7 @@ class LoginTestCase(LoginBaseTestCase):
         return """
             mutation {
                 tokenAuth(%s: "%s", password: "%s")
-                    { success, errors, token, refreshToken, user { username, id }, unarchiving  }
+                    { success, errors, token, payload, refreshToken, refreshExpiresIn, user { username, id }, unarchiving  }
             }
             """ % (
             field,
@@ -150,7 +155,7 @@ class LoginTestCase(LoginBaseTestCase):
         return """
             mutation {
                 tokenAuth(username: "%s", password: "%s", email: "%s")
-                    { success, errors, token, refreshToken, user { username, id }, unarchiving  }
+                    { success, errors, token, payload, refreshToken, refreshExpiresIn, user { username, id }, unarchiving  }
             }
             """ % (
             self.verified_user.username,  # type: ignore
@@ -166,7 +171,7 @@ class LoginRelayTestCase(LoginBaseTestCase):
         return """
             mutation {
                 relayTokenAuth(input:{ %s: "%s", password: "%s"})
-                    { success, errors, token, refreshToken, user { username, id }, unarchiving  }
+                    { success, errors, token, payload, refreshToken, refreshExpiresIn, user { username, id }, unarchiving  }
                 }
             """ % (
             field,
@@ -178,7 +183,7 @@ class LoginRelayTestCase(LoginBaseTestCase):
         return """
             mutation {
                 relayTokenAuth(input:{username: "%s", password: "%s", email: "%s"})
-                    { success, errors, token, refreshToken, user { username, id }, unarchiving  }
+                    { success, errors, token, payload, refreshToken, refreshExpiresIn, user { username, id }, unarchiving  }
                 }
             """ % (
             self.verified_user.username,  # type: ignore

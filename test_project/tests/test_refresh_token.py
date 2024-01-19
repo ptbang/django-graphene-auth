@@ -74,7 +74,7 @@ class RefreshTokenTestCase(RefreshTokenBaseTestCase):
         return """
         mutation {
             refreshToken(refreshToken: "%s" )
-                { token, refreshToken, payload, success, errors }
+                { token, refreshToken, refreshExpiresIn, payload, success, errors }
             }
         """ % (token)
 
@@ -95,6 +95,6 @@ class RefreshTokenRelayTestCase(RefreshTokenBaseTestCase):
         return """
         mutation {
             relayRefreshToken(input: {refreshToken: "%s"} )
-                { token, refreshToken, payload, success, errors  }
+                { token, refreshToken, refreshExpiresIn, payload, success, errors  }
         }
         """ % (token)

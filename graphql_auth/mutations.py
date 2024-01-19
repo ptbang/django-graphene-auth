@@ -125,6 +125,7 @@ class VerifyToken(MutationMixin, VerifyOrRefreshOrRevokeTokenMixin, graphql_jwt.
 
 class RefreshToken(MutationMixin, VerifyOrRefreshOrRevokeTokenMixin, graphql_jwt.Refresh):
     payload = GenericScalar(required=False)
+    refresh_expires_in = graphene.Int()
     __doc__ = VerifyOrRefreshOrRevokeTokenMixin.__doc__
 
     @classmethod

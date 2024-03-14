@@ -2,15 +2,14 @@ import json
 from datetime import datetime, timedelta
 
 from graphql_auth.constants import Messages
-
-from .base_test_case import BaseTestCase
+from graphql_auth.testcase import BaseTestCase
 
 
 class RevokeTokenBaseTestCase(BaseTestCase):
     LOGIN_QUERY_RESPONSE_RESULT_KEY: str
 
     def setUp(self):
-        self.user1 = self.register_user(email="foo@email.com", username="foo_username")
+        self.user1 = self.create_user(email="foo@email.com", username="foo_username")
 
     def get_login_query(self) -> str:
         raise NotImplementedError
@@ -65,7 +64,9 @@ class RevokeTokenTestCase(RevokeTokenBaseTestCase):
             tokenAuth(email: "foo@email.com", password: "%s" )
                 { refreshToken  }
         }
-        """ % (self.default_password)
+        """ % (
+            self.default_password
+        )
 
     def get_revoke_query(self, token):
         return """
@@ -73,7 +74,9 @@ class RevokeTokenTestCase(RevokeTokenBaseTestCase):
             revokeToken(refreshToken: "%s" )
                 { revoked, success, errors  }
         }
-        """ % (token)
+        """ % (
+            token
+        )
 
 
 class RevokeTokenRelayTestCase(RevokeTokenBaseTestCase):
@@ -86,7 +89,9 @@ class RevokeTokenRelayTestCase(RevokeTokenBaseTestCase):
             relayTokenAuth(input:{ email: "foo@email.com", password: "%s"  })
                 { refreshToken  }
             }
-        """ % (self.default_password)
+        """ % (
+            self.default_password
+        )
 
     def get_revoke_query(self, token):
         return """
@@ -94,4 +99,6 @@ class RevokeTokenRelayTestCase(RevokeTokenBaseTestCase):
             relayRevokeToken(input: {refreshToken: "%s"} )
                 { revoked, success, errors  }
         }
-        """ % (token)
+        """ % (
+            token
+        )

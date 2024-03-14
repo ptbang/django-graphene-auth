@@ -1,16 +1,15 @@
 import json
 
 from graphql_auth.constants import Messages
-
-from .base_test_case import BaseTestCase
+from graphql_auth.testcase import BaseTestCase
 
 
 class ArchiveAccountBaseTestCase(BaseTestCase):
     RESPONSE_RESULT_KEY = 'archiveAccount'
 
     def setUp(self):
-        self.user1 = self.register_user(email="foo@email.com", username="foo")
-        self.user2 = self.register_user(email="bar@email.com", username="bar", verified=True)
+        self.user1 = self.create_user(email="foo@email.com", username="foo")
+        self.user2 = self.create_user(email="bar@email.com", username="bar", verified=True)
 
     def get_login_query(self) -> str:
         raise NotImplementedError
@@ -103,7 +102,9 @@ class ArchiveAccountTestCase(ArchiveAccountBaseTestCase):
             )
             { refreshToken }
         }
-        """ % (self.default_password,)
+        """ % (
+            self.default_password,
+        )
 
     def archive_account_query(self, password=None):
         return """
@@ -112,7 +113,9 @@ class ArchiveAccountTestCase(ArchiveAccountBaseTestCase):
                 success, errors
               }
             }
-        """ % (password or self.default_password,)
+        """ % (
+            password or self.default_password,
+        )
 
 
 class ArchiveAccountRelayTestCase(ArchiveAccountBaseTestCase):
@@ -129,7 +132,9 @@ class ArchiveAccountRelayTestCase(ArchiveAccountBaseTestCase):
             )
             { refreshToken }
         }
-        """ % (self.default_password,)
+        """ % (
+            self.default_password,
+        )
 
     def archive_account_query(self, password=None):
         return """
@@ -138,4 +143,6 @@ class ArchiveAccountRelayTestCase(ArchiveAccountBaseTestCase):
                 success, errors
               }
             }
-        """ % (password or self.default_password,)
+        """ % (
+            password or self.default_password,
+        )

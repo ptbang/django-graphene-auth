@@ -1,14 +1,13 @@
 from datetime import timedelta
 
 from graphql_auth.constants import Messages
+from graphql_auth.testcase import BaseTestCase
 from graphql_auth.utils import get_token
-
-from .base_test_case import BaseTestCase
 
 
 class PasswordSetBaseTestCase(BaseTestCase):
     def setUp(self):
-        self.user1 = self.register_user(email="gaa@email.com", username="gaa", verified=True, archived=False)
+        self.user1 = self.create_user(email="gaa@email.com", username="gaa", verified=True, archived=False)
         self.user1_old_pass = self.user1.password
 
     def get_login_query(self) -> str:
@@ -96,7 +95,9 @@ class PasswordSetTestCase(PasswordSetBaseTestCase):
             )
             { refreshToken }
         }
-        """ % (self.default_password,)
+        """ % (
+            self.default_password,
+        )
 
     def get_query(self, token, new_password1="new_password", new_password2="new_password") -> str:
         return """
@@ -108,7 +109,11 @@ class PasswordSetTestCase(PasswordSetBaseTestCase):
             )
             { success, errors }
         }
-        """ % (token, new_password1, new_password2)
+        """ % (
+            token,
+            new_password1,
+            new_password2,
+        )
 
 
 class PasswordSetRelayTestCase(PasswordSetBaseTestCase):
@@ -125,7 +130,9 @@ class PasswordSetRelayTestCase(PasswordSetBaseTestCase):
                 )
                 { success, refreshToken }
             }
-            """ % (self.default_password,)
+            """ % (
+            self.default_password,
+        )
 
     def get_query(self, token, new_password1="new_password", new_password2="new_password") -> str:
         return """
@@ -138,4 +145,8 @@ class PasswordSetRelayTestCase(PasswordSetBaseTestCase):
                     })
                 { success, errors }
             }
-        """ % (token, new_password1, new_password2)
+        """ % (
+            token,
+            new_password1,
+            new_password2,
+        )

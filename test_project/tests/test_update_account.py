@@ -1,13 +1,12 @@
 from graphql_auth.constants import Messages
-
-from .base_test_case import BaseTestCase
+from graphql_auth.testcase import BaseTestCase
 
 
 class UpdateAccountBaseTestCase(BaseTestCase):
     def setUp(self):
-        self.user1 = self.register_user(email="foo@email.com", username="foo", verified=False, first_name="foo")
-        self.user2 = self.register_user(email="bar@email.com", username="bar", verified=True, first_name="bar")
-        self.user3 = self.register_user(email="gaa@email.com", username="gaa", verified=True, first_name="gaa")
+        self.user1 = self.create_user(email="foo@email.com", username="foo", verified=False, first_name="foo")
+        self.user2 = self.create_user(email="bar@email.com", username="bar", verified=True, first_name="bar")
+        self.user3 = self.create_user(email="gaa@email.com", username="gaa", verified=True, first_name="gaa")
 
     def get_query(self, first_name="firstname"):
         raise NotImplementedError
@@ -57,7 +56,9 @@ class UpdateAccountTestCase(UpdateAccountBaseTestCase):
             updateAccount(firstName: "%s")
                 { success, errors }
         }
-        """ % (first_name)
+        """ % (
+            first_name
+        )
 
 
 class UpdateAccountRelayTestCase(UpdateAccountBaseTestCase):
@@ -69,4 +70,6 @@ class UpdateAccountRelayTestCase(UpdateAccountBaseTestCase):
             relayUpdateAccount(input:{ firstName: "%s" })
                 { success, errors }
         }
-        """ % (first_name)
+        """ % (
+            first_name
+        )

@@ -1,19 +1,16 @@
-import json
 from smtplib import SMTPException
 from unittest import mock
 
 from django.core import mail
 
 from graphql_auth.constants import Messages
-from graphql_auth.exceptions import InvalidEmailAddressError, UserAlreadyVerifiedError
-
-from .base_test_case import BaseTestCase
+from graphql_auth.testcase import BaseTestCase
 
 
 class ResendActivationEmailBaseTestCase(BaseTestCase):
     def setUp(self):
-        self.user1 = self.register_user(email="gaa@email.com", username="gaa", verified=False)
-        self.user2 = self.register_user(email="bar@email.com", username="bar", verified=True)
+        self.user1 = self.create_user(email="gaa@email.com", username="gaa", verified=False)
+        self.user2 = self.create_user(email="bar@email.com", username="bar", verified=True)
 
     def get_query(self, email: str) -> str:
         raise NotImplementedError
@@ -78,7 +75,9 @@ class ResendActivationEmailTestCase(ResendActivationEmailBaseTestCase):
                 resendActivationEmail(email: "%s")
                     { success, errors }
             }
-            """ % (email)
+            """ % (
+            email
+        )
 
 
 class ResendActivationEmailRelayTestCase(ResendActivationEmailBaseTestCase):
@@ -90,4 +89,6 @@ class ResendActivationEmailRelayTestCase(ResendActivationEmailBaseTestCase):
                 relayResendActivationEmail(input:{ email: "%s"})
                     { success, errors }
             }
-        """ % (email)
+        """ % (
+            email
+        )

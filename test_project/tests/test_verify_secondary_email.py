@@ -1,14 +1,12 @@
 from graphql_auth.constants import Messages
-from graphql_auth.exceptions import EmailAlreadyInUseError
+from graphql_auth.testcase import BaseTestCase
 from graphql_auth.utils import get_token
-
-from .base_test_case import BaseTestCase
 
 
 class VerifySecondaryEmailBaseTestCase(BaseTestCase):
     def setUp(self):
-        self.user = self.register_user(email="bar@email.com", username="bar", verified=True)
-        self.user2 = self.register_user(email="foo@email.com", username="foo", verified=True)
+        self.user = self.create_user(email="bar@email.com", username="bar", verified=True)
+        self.user2 = self.create_user(email="foo@email.com", username="foo", verified=True)
 
     def get_verify_query(self, token):
         raise NotImplementedError
@@ -53,7 +51,9 @@ class VerifySecondaryEmailCase(VerifySecondaryEmailBaseTestCase):
             verifySecondaryEmail(token: "%s")
                 { success, errors }
             }
-        """ % (token)
+        """ % (
+            token
+        )
 
 
 class VerifySecondaryEmailRelayTestCase(VerifySecondaryEmailBaseTestCase):
@@ -65,5 +65,6 @@ class VerifySecondaryEmailRelayTestCase(VerifySecondaryEmailBaseTestCase):
         relayVerifySecondaryEmail(input:{ token: "%s"})
             { success, errors }
         }
-        """ % (token)
-
+        """ % (
+            token
+        )

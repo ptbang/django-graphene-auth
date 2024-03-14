@@ -1,8 +1,8 @@
 import json
 from datetime import timedelta
 
-from .base_test_case import BaseTestCase
 from graphql_auth.constants import Messages
+from graphql_auth.testcase import BaseTestCase
 
 
 class RefreshTokenBaseTestCase(BaseTestCase):
@@ -16,7 +16,7 @@ class RefreshTokenBaseTestCase(BaseTestCase):
         raise NotImplementedError()
 
     def setUp(self):
-        self.user = self.register_user(email='foo@email.com', username='foo', verified=True, archived=False)
+        self.user = self.create_user(email='foo@email.com', username='foo', verified=True, archived=False)
 
     def _test_refresh_token(self):
         query = self.get_login_query()
@@ -68,7 +68,9 @@ class RefreshTokenTestCase(RefreshTokenBaseTestCase):
             tokenAuth(email: "foo@email.com", password: "%s" )
                 { refreshToken }
         }
-        """ % (self.default_password)
+        """ % (
+            self.default_password
+        )
 
     def get_refresh_token_query(self, token):
         return """
@@ -76,7 +78,9 @@ class RefreshTokenTestCase(RefreshTokenBaseTestCase):
             refreshToken(refreshToken: "%s" )
                 { token, refreshToken, refreshExpiresIn, payload, success, errors }
             }
-        """ % (token)
+        """ % (
+            token
+        )
 
 
 class RefreshTokenRelayTestCase(RefreshTokenBaseTestCase):
@@ -89,7 +93,9 @@ class RefreshTokenRelayTestCase(RefreshTokenBaseTestCase):
             relayTokenAuth(input:{ email: "foo@email.com", password: "%s"  })
                 { refreshToken  }
         }
-        """ % (self.default_password)
+        """ % (
+            self.default_password
+        )
 
     def get_refresh_token_query(self, token):
         return """
@@ -97,4 +103,6 @@ class RefreshTokenRelayTestCase(RefreshTokenBaseTestCase):
             relayRefreshToken(input: {refreshToken: "%s"} )
                 { token, refreshToken, refreshExpiresIn, payload, success, errors  }
         }
-        """ % (token)
+        """ % (
+            token
+        )

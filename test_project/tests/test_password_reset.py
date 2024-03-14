@@ -1,14 +1,13 @@
 import json
 
 from graphql_auth.constants import Messages
+from graphql_auth.testcase import BaseTestCase
 from graphql_auth.utils import get_token
-
-from .base_test_case import BaseTestCase
 
 
 class PasswordResetBaseTestCase(BaseTestCase):
     def setUp(self):
-        self.user1 = self.register_user(email="gaa@email.com", username="gaa", verified=True, archived=False)
+        self.user1 = self.create_user(email="gaa@email.com", username="gaa", verified=True, archived=False)
         self.user1_old_pass = self.user1.password
 
     def get_login_query(self) -> str:
@@ -93,7 +92,9 @@ class PasswordResetTestCase(PasswordResetBaseTestCase):
             )
             { success, token, refreshToken }
         }
-        """ % (self.default_password,)
+        """ % (
+            self.default_password,
+        )
 
     def get_query(self, token, new_password1="new_password", new_password2="new_password"):
         return """
@@ -126,7 +127,9 @@ class PasswordResetRelayTestCase(PasswordResetBaseTestCase):
             )
             { success, token, refreshToken }
         }
-        """ % (self.default_password,)
+        """ % (
+            self.default_password,
+        )
 
     def get_query(self, token, new_password1="new_password", new_password2="new_password") -> str:
         return """

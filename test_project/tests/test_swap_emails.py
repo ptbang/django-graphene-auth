@@ -1,17 +1,16 @@
 from graphql_auth.constants import Messages
-
-from .base_test_case import BaseTestCase
+from graphql_auth.testcase import BaseTestCase
 
 
 class SwapEmailsBaseTestCase(BaseTestCase):
     def setUp(self):
-        self.user = self.register_user(
+        self.user = self.create_user(
             email="bar@email.com",
             username="bar",
             verified=True,
             secondary_email="secondary@email.com",
         )
-        self.user2 = self.register_user(email="baa@email.com", username="baa", verified=True)
+        self.user2 = self.create_user(email="baa@email.com", username="baa", verified=True)
 
     def get_query(self, password=None) -> str:
         raise NotImplementedError
@@ -47,7 +46,9 @@ class SwapEmailsTestCase(SwapEmailsBaseTestCase):
             swapEmails(password: "%s")
                 { success, errors }
             }
-        """ % (password or self.default_password)
+        """ % (
+            password or self.default_password
+        )
 
 
 class SwapEmailsRelayTestCase(SwapEmailsBaseTestCase):
@@ -59,4 +60,6 @@ class SwapEmailsRelayTestCase(SwapEmailsBaseTestCase):
             relaySwapEmails(input:{ password: "%s"})
                 { success, errors }
         }
-        """ % (password or self.default_password)
+        """ % (
+            password or self.default_password
+        )

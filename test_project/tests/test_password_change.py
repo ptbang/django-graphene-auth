@@ -1,17 +1,14 @@
 import json
 
-from django.contrib.auth import forms
-
 from graphql_auth.constants import Messages
-
-from .base_test_case import BaseTestCase
+from graphql_auth.testcase import BaseTestCase
 
 
 class PasswordChangeBaseTestCase(BaseTestCase):
     RESPONSE_TOKEN_AUTH_KEY: str
 
     def setUp(self):
-        self.user = self.register_user(email="gaa@email.com", username="gaa", verified=True)
+        self.user = self.create_user(email="gaa@email.com", username="gaa", verified=True)
         self.user_old_pass = self.user.password
 
     def get_login_query(self):
@@ -99,7 +96,10 @@ class PasswordChangeTestCase(PasswordChangeBaseTestCase):
             )
             { token, refreshToken }
         }
-        """ % (self.user.username, self.default_password)  # type: ignore
+        """ % (
+            self.user.username,  # type: ignore
+            self.default_password,
+        )
 
     def get_query(self, new_password1="new_password", new_password2="new_password"):
         return """

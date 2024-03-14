@@ -3,16 +3,15 @@ import json
 from django.core.exceptions import ObjectDoesNotExist
 
 from graphql_auth.constants import Messages
-
-from .base_test_case import BaseTestCase
+from graphql_auth.testcase import BaseTestCase
 
 
 class DeleteAccountBaseTestCase(BaseTestCase):
     LOGIN_RESPONSE_RESULT_KEY: str
 
     def setUp(self):
-        self.user1 = self.register_user(email="foo@email.com", username="foo")
-        self.user2 = self.register_user(email="bar@email.com", username="bar", verified=True)
+        self.user1 = self.create_user(email="foo@email.com", username="foo")
+        self.user2 = self.create_user(email="bar@email.com", username="bar", verified=True)
 
     def get_login_query(self, user) -> str:
         raise NotImplementedError
@@ -60,7 +59,7 @@ class DeleteAccountBaseTestCase(BaseTestCase):
 
     def _test_not_verified_user(self):
         self.client.force_login(self.user1)
-        response = self.query(query = self.get_query())
+        response = self.query(query=self.get_query())
         self.assertResponseNoErrors(response)
         result = self.get_response_result(response)
         self.assertFalse(result['success'])
@@ -103,7 +102,9 @@ class DeleteAccountTestCase(DeleteAccountBaseTestCase):
                 success, errors
               }
             }
-        """ % (password or self.default_password,)
+        """ % (
+            password or self.default_password,
+        )
 
 
 class DeleteAccountRelayTestCase(DeleteAccountBaseTestCase):
@@ -132,4 +133,6 @@ class DeleteAccountRelayTestCase(DeleteAccountBaseTestCase):
             relayDeleteAccount(input: { password: "%s"})
                 { success, errors }
         }
-        """ % (password or self.default_password,)
+        """ % (
+            password or self.default_password,
+        )

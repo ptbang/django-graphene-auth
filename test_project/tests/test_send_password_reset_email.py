@@ -1,19 +1,16 @@
-import json
 from smtplib import SMTPException
 from unittest import mock
 
 from django.core import mail
 
 from graphql_auth.constants import Messages
-from graphql_auth.exceptions import InvalidEmailAddressError
-
-from .base_test_case import BaseTestCase
+from graphql_auth.testcase import BaseTestCase
 
 
 class SendPasswordResetEmailBaseTestCase(BaseTestCase):
     def setUp(self):
-        self.user1 = self.register_user(email="foo@email.com", username="foo", verified=False)
-        self.user2 = self.register_user(
+        self.user1 = self.create_user(email="foo@email.com", username="foo", verified=False)
+        self.user2 = self.create_user(
             email="bar@email.com",
             username="bar",
             verified=True,
@@ -40,7 +37,7 @@ class SendPasswordResetEmailBaseTestCase(BaseTestCase):
         self.assertIn('email', result['errors'].keys())
 
     def _test_send_email_successfully(self):
-        query = self.get_query(self.user2.email)   # type: ignore
+        query = self.get_query(self.user2.email)  # type: ignore
         response = self.query(query)
         self.assertResponseNoErrors(response)
         result = self.get_response_result(response)
@@ -49,7 +46,7 @@ class SendPasswordResetEmailBaseTestCase(BaseTestCase):
         self.assertIn("Reset your password", mail.outbox[0].subject)
 
     def _test_send_to_secondary_email_successfully(self):
-        query = self.get_query(self.user2.status.secondary_email) # type: ignore
+        query = self.get_query(self.user2.status.secondary_email)  # type: ignore
         response = self.query(query)
         self.assertResponseNoErrors(response)
         result = self.get_response_result(response)
@@ -58,7 +55,7 @@ class SendPasswordResetEmailBaseTestCase(BaseTestCase):
         self.assertIn("Reset your password", mail.outbox[0].subject)
 
     def _test_send_to_unverified_user_successfully(self):
-        query = self.get_query(self.user1.email) # type: ignore
+        query = self.get_query(self.user1.email)  # type: ignore
         response = self.query(query)
         self.assertResponseNoErrors(response)
         result = self.get_response_result(response)
@@ -90,7 +87,9 @@ class SendPasswordResetEmailTestCase(SendPasswordResetEmailBaseTestCase):
                 sendPasswordResetEmail(email: "%s")
                     { success, errors }
                 }
-        """ % (email)
+        """ % (
+            email
+        )
 
 
 class SendPasswordResetEmailRelayTestCase(SendPasswordResetEmailBaseTestCase):
@@ -102,6 +101,6 @@ class SendPasswordResetEmailRelayTestCase(SendPasswordResetEmailBaseTestCase):
                 relaySendPasswordResetEmail(input:{ email: "%s"})
                     { success, errors }
                 }
-        """ % (email)
-
-
+        """ % (
+            email
+        )

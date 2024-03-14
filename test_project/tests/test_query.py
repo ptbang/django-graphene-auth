@@ -3,16 +3,16 @@ import json
 
 from django.contrib.auth import get_user_model
 
-from .base_test_case import BaseTestCase
+from graphql_auth.testcase import BaseTestCase
 
 UserModel = get_user_model()
 
 
 class QueryTestCase(BaseTestCase):
     def setUp(self):
-        self.user1 = self.register_user(email="foo@email.com", username="foo", verified=False)
-        self.user2 = self.register_user(email="bar@email.com", username="bar", verified=True)
-        self.user3 = self.register_user(email="gaa@email.com", username="gaa", verified=True, archived=True)
+        self.user1 = self.create_user(email="foo@email.com", username="foo", verified=False)
+        self.user2 = self.create_user(email="bar@email.com", username="bar", verified=True)
+        self.user3 = self.create_user(email="gaa@email.com", username="gaa", verified=True, archived=True)
 
     def test_user(self):
         id = base64.b64encode(('UserNode:' + str(self.user1.pk)).encode()).decode()
@@ -22,7 +22,9 @@ class QueryTestCase(BaseTestCase):
                 id, pk
             }
         }
-        """ % (base64.b64encode(('UserNode:' + str(self.user1.pk)).encode()).decode(),)
+        """ % (
+            base64.b64encode(('UserNode:' + str(self.user1.pk)).encode()).decode(),
+        )
         response = self.query(query)
         result = json.loads(response.content)['data']['user']
         self.assertIsNone(result)
@@ -87,7 +89,9 @@ class QueryTestCase(BaseTestCase):
                 }
             }
         }
-        """ % (self.user3.email)  # type: ignore
+        """ % (
+            self.user3.email  # type: ignore
+        )
         response = self.query(query)
         result = json.loads(response.content)['data']['users']
         self.assertEqual(result["edges"][0]['node']['email'], self.user3.email)  # type: ignore
@@ -107,7 +111,10 @@ class QueryTestCase(BaseTestCase):
         self.user2.save()
         login_query = """
             mutation {tokenAuth(email: "%s", password: "%s") { token }}
-            """ % (self.user2.email, self.default_password)  # type: ignore
+            """ % (
+            self.user2.email,  # type: ignore
+            self.default_password,
+        )
         response = self.query(login_query)
         token = json.loads(response.content.decode())['data']['tokenAuth']['token']
 

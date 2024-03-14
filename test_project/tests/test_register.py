@@ -1,13 +1,10 @@
-import json
 from abc import abstractmethod
 from smtplib import SMTPException
 from unittest import mock
 
 from graphql_auth.constants import Messages
-from graphql_auth.exceptions import EmailAlreadyInUseError
 from graphql_auth.signals import user_registered
-
-from .base_test_case import BaseTestCase
+from graphql_auth.testcase import BaseTestCase
 
 
 class RegisterBaseTestCase(BaseTestCase):
@@ -93,7 +90,7 @@ class RegisterBaseTestCase(BaseTestCase):
         self.assertTrue(send_email_mock.called)
 
     def _test_register_duplicate_unique_email(self):
-        self.register_user(
+        self.create_user(
             email='foo@email.com',
             username='foo',
             verified=True,
@@ -116,7 +113,6 @@ class RegisterBaseTestCase(BaseTestCase):
         self.assertFalse(result['success'])
         self.assertIsNone(result['token'])
         self.assertEqual(result['errors'], Messages.FAILED_SENDING_ACTIVATION_EMAIL)
-
 
 
 class RegisterTestCase(RegisterBaseTestCase):
@@ -162,7 +158,9 @@ class RegisterTestCase(RegisterBaseTestCase):
             verifyAccount(token: "%s")
                 { success, errors }
             }
-        ''' % (token)
+        ''' % (
+            token
+        )
 
 
 class RegisterRelayTestCase(RegisterTestCase):
@@ -204,4 +202,6 @@ class RegisterRelayTestCase(RegisterTestCase):
             relayVerifyAccount(input: {token: "%s"})
                 { success, errors  }
         }
-        ''' % (token)
+        ''' % (
+            token
+        )

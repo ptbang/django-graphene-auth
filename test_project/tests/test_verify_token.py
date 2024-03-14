@@ -2,15 +2,14 @@ import json
 from datetime import timedelta
 
 from graphql_auth.constants import Messages
-
-from .base_test_case import BaseTestCase
+from graphql_auth.testcase import BaseTestCase
 
 
 class VerifyTokenBaseTestCase(BaseTestCase):
     LOGIN_QUERY_RESPONSE_RESULT_KEY: str
 
     def setUp(self):
-        self.user = self.register_user(email="foo@email.com", username="foo", verified=False)
+        self.user = self.create_user(email="foo@email.com", username="foo", verified=False)
 
     def get_login_query(self) -> str:
         raise NotImplementedError
@@ -63,7 +62,10 @@ class VerifyTokenTestCase(VerifyTokenBaseTestCase):
             tokenAuth(email: "%s", password: "%s" )
                 { token }
         }
-        """ % (self.user.email, self.default_password)  # type: ignore
+        """ % (
+            self.user.email,  # type: ignore
+            self.default_password,
+        )
 
     def get_verify_query(self, token):
         return """
@@ -71,7 +73,9 @@ class VerifyTokenTestCase(VerifyTokenBaseTestCase):
             verifyToken(token: "%s")
                 { payload, success, errors }
         }
-        """ % (token)
+        """ % (
+            token
+        )
 
 
 class VerifyTokenRelayTestCase(VerifyTokenBaseTestCase):
@@ -84,7 +88,10 @@ class VerifyTokenRelayTestCase(VerifyTokenBaseTestCase):
             relayTokenAuth(input:{ email: "%s", password: "%s" })
                 { token }
         }
-        """ % (self.user.email, self.default_password)  # type: ignore
+        """ % (
+            self.user.email,  # type: ignore
+            self.default_password,
+        )
 
     def get_verify_query(self, token):
         return """
@@ -92,4 +99,6 @@ class VerifyTokenRelayTestCase(VerifyTokenBaseTestCase):
             relayVerifyToken(input: {token: "%s"})
                 { payload, success, errors }
         }
-        """ % (token)
+        """ % (
+            token
+        )

@@ -1,13 +1,10 @@
-import json
-
 from graphql_auth.constants import Messages
-
-from .base_test_case import BaseTestCase
+from graphql_auth.testcase import BaseTestCase
 
 
 class RemoveSecondaryEmailBaseTestCase(BaseTestCase):
     def setUp(self):
-        self.user = self.register_user(
+        self.user = self.create_user(
             email="bar@email.com",
             username="bar",
             verified=True,
@@ -58,7 +55,9 @@ class RemoveSecondaryEmailTestCase(RemoveSecondaryEmailBaseTestCase):
             removeSecondaryEmail(password: "%s")
                 { success, errors }
             }
-        """ % (password or self.default_password)
+        """ % (
+            password or self.default_password
+        )
 
 
 class RemoveSecondaryEmailRelayTestCase(RemoveSecondaryEmailBaseTestCase):
@@ -70,4 +69,6 @@ class RemoveSecondaryEmailRelayTestCase(RemoveSecondaryEmailBaseTestCase):
             relayRemoveSecondaryEmail(input:{ password: "%s"})
                 { success, errors }
             }
-        """ % (password or self.default_password)
+        """ % (
+            password or self.default_password
+        )

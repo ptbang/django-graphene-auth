@@ -1,21 +1,18 @@
 from copy import copy
-from unittest.mock import patch
 
 from django.conf import settings
 
 from graphql_auth.constants import Messages
-from graphql_auth.exceptions import InvalidCredentialsError, UserNotVerifiedError
-
-from .base_test_case import BaseTestCase
+from graphql_auth.testcase import BaseTestCase
 
 
 class LoginBaseTestCase(BaseTestCase):
     RESPONSE_RESULT_KEY: str
 
     def setUp(self):
-        self.archived_user = self.register_user(email="gaa@email.com", username="gaa", verified=True, archived=True)
-        self.not_verified_user = self.register_user(email="boo@email.com", username="boo", verified=False)
-        self.verified_user = self.register_user(
+        self.archived_user = self.create_user(email="gaa@email.com", username="gaa", verified=True, archived=True)
+        self.not_verified_user = self.create_user(email="boo@email.com", username="boo", verified=False)
+        self.verified_user = self.create_user(
             email="foo@email.com",
             username="foo",
             verified=True,

@@ -4,7 +4,7 @@ from unittest import mock
 from django.core import mail
 
 from graphql_auth.constants import Messages
-from graphql_auth.testcase import BaseTestCase
+from graphql_auth.base_testcase import BaseTestCase
 
 
 class SendPasswordResetEmailBaseTestCase(BaseTestCase):

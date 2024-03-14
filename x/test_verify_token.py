@@ -2,7 +2,7 @@ import json
 from datetime import timedelta
 
 from graphql_auth.constants import Messages
-from graphql_auth.testcase import BaseTestCase
+from graphql_auth.testingx import BaseTestCase
 
 
 class VerifyTokenBaseTestCase(BaseTestCase):

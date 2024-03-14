@@ -3,7 +3,7 @@ import json
 
 from django.contrib.auth import get_user_model
 
-from graphql_auth.testcase import BaseTestCase
+from graphql_auth.testingx import BaseTestCase
 
 UserModel = get_user_model()
 

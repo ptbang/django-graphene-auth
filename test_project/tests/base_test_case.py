@@ -48,7 +48,7 @@ class BaseTestCase(GraphQLTestCase, metaclass=TestCaseMeta):
 
     default_password = "23kegbsi7g2k"
 
-    def register_user(self, password=None, verified=False, archived=False, secondary_email="", *args, **kwargs):
+    def create_user(self, password=None, verified=False, archived=False, secondary_email="", *args, **kwargs):
         if kwargs.get("username"):
             kwargs.update({"first_name": kwargs.get("username")})
         user = get_user_model().objects.create(*args, **kwargs)

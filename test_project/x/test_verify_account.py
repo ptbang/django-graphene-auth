@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from graphql_auth.constants import Messages
 from graphql_auth.signals import user_verified
-from graphql_auth.testcase import BaseTestCase
+from graphql_auth.base_testcase import BaseTestCase
 from graphql_auth.utils import get_token
 
 

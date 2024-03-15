@@ -2,11 +2,11 @@ import json
 
 from django.core.exceptions import ObjectDoesNotExist
 
+from graphql_auth.common_testcase import CommonTestCase
 from graphql_auth.constants import Messages
-from graphql_auth.testingx import BaseTestCase
 
 
-class DeleteAccountBaseTestCase(BaseTestCase):
+class DeleteAccountCommonTestCase(CommonTestCase):
     LOGIN_RESPONSE_RESULT_KEY: str
 
     def setUp(self):
@@ -77,7 +77,7 @@ class DeleteAccountBaseTestCase(BaseTestCase):
             self.user2.refresh_from_db()
 
 
-class DeleteAccountTestCase(DeleteAccountBaseTestCase):
+class DeleteAccountTestCase(DeleteAccountCommonTestCase):
     RESPONSE_RESULT_KEY = 'deleteAccount'
     LOGIN_RESPONSE_RESULT_KEY = 'tokenAuth'
 
@@ -107,7 +107,7 @@ class DeleteAccountTestCase(DeleteAccountBaseTestCase):
         )
 
 
-class DeleteAccountRelayTestCase(DeleteAccountBaseTestCase):
+class DeleteAccountRelayTestCase(DeleteAccountCommonTestCase):
     RESPONSE_RESULT_KEY = 'relayDeleteAccount'
     LOGIN_RESPONSE_RESULT_KEY = 'relayTokenAuth'
 

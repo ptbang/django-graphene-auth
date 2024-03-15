@@ -1,9 +1,9 @@
+from graphql_auth.common_testcase import CommonTestCase
 from graphql_auth.constants import Messages
-from graphql_auth.base_testcase import BaseTestCase
 from graphql_auth.utils import get_token
 
 
-class VerifySecondaryEmailBaseTestCase(BaseTestCase):
+class VerifySecondaryEmailCommonTestCase(CommonTestCase):
     def setUp(self):
         self.user = self.create_user(email="bar@email.com", username="bar", verified=True)
         self.user2 = self.create_user(email="foo@email.com", username="foo", verified=True)
@@ -42,7 +42,7 @@ class VerifySecondaryEmailBaseTestCase(BaseTestCase):
         self.assertEqual(result['errors'], Messages.EMAIL_IN_USE)
 
 
-class VerifySecondaryEmailCase(VerifySecondaryEmailBaseTestCase):
+class VerifySecondaryEmailCase(VerifySecondaryEmailCommonTestCase):
     RESPONSE_RESULT_KEY = 'verifySecondaryEmail'
 
     def get_verify_query(self, token):
@@ -56,7 +56,7 @@ class VerifySecondaryEmailCase(VerifySecondaryEmailBaseTestCase):
         )
 
 
-class VerifySecondaryEmailRelayTestCase(VerifySecondaryEmailBaseTestCase):
+class VerifySecondaryEmailRelayTestCase(VerifySecondaryEmailCommonTestCase):
     RESPONSE_RESULT_KEY = 'relayVerifySecondaryEmail'
 
     def get_verify_query(self, token):

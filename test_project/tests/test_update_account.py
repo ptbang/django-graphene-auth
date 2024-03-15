@@ -1,8 +1,8 @@
+from graphql_auth.common_testcase import CommonTestCase
 from graphql_auth.constants import Messages
-from graphql_auth.testingx import BaseTestCase
 
 
-class UpdateAccountBaseTestCase(BaseTestCase):
+class UpdateAccountCommonTestCase(CommonTestCase):
     def setUp(self):
         self.user1 = self.create_user(email="foo@email.com", username="foo", verified=False, first_name="foo")
         self.user2 = self.create_user(email="bar@email.com", username="bar", verified=True, first_name="bar")
@@ -47,7 +47,7 @@ class UpdateAccountBaseTestCase(BaseTestCase):
         self.assertTrue('firstName', result['errors'].keys())
 
 
-class UpdateAccountTestCase(UpdateAccountBaseTestCase):
+class UpdateAccountTestCase(UpdateAccountCommonTestCase):
     RESPONSE_RESULT_KEY = 'updateAccount'
 
     def get_query(self, first_name="firstname"):
@@ -61,7 +61,7 @@ class UpdateAccountTestCase(UpdateAccountBaseTestCase):
         )
 
 
-class UpdateAccountRelayTestCase(UpdateAccountBaseTestCase):
+class UpdateAccountRelayTestCase(UpdateAccountCommonTestCase):
     RESPONSE_RESULT_KEY = 'relayUpdateAccount'
 
     def get_query(self, first_name="firstname"):

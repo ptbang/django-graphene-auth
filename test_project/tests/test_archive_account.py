@@ -1,10 +1,10 @@
 import json
 
+from graphql_auth.common_testcase import CommonTestCase
 from graphql_auth.constants import Messages
-from graphql_auth.base_testcase import BaseTestCase
 
 
-class ArchiveAccountBaseTestCase(BaseTestCase):
+class ArchiveAccountCommonTestCase(CommonTestCase):
     RESPONSE_RESULT_KEY = 'archiveAccount'
 
     def setUp(self):
@@ -90,7 +90,7 @@ class ArchiveAccountBaseTestCase(BaseTestCase):
         self.assertEqual(self.user1.status.archived, False)  # type: ignore
 
 
-class ArchiveAccountTestCase(ArchiveAccountBaseTestCase):
+class ArchiveAccountTestCase(ArchiveAccountCommonTestCase):
     RESPONSE_RESULT_KEY = 'archiveAccount'
 
     def get_login_query(self):
@@ -118,7 +118,7 @@ class ArchiveAccountTestCase(ArchiveAccountBaseTestCase):
         )
 
 
-class ArchiveAccountRelayTestCase(ArchiveAccountBaseTestCase):
+class ArchiveAccountRelayTestCase(ArchiveAccountCommonTestCase):
     RESPONSE_RESULT_KEY = 'relayArchiveAccount'
 
     def get_login_query(self):

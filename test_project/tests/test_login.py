@@ -2,11 +2,11 @@ from copy import copy
 
 from django.conf import settings
 
+from graphql_auth.common_testcase import CommonTestCase
 from graphql_auth.constants import Messages
-from graphql_auth.base_testcase import BaseTestCase
 
 
-class LoginBaseTestCase(BaseTestCase):
+class LoginCommonTestCase(CommonTestCase):
     RESPONSE_RESULT_KEY: str
 
     def setUp(self):
@@ -133,7 +133,7 @@ class LoginBaseTestCase(BaseTestCase):
         self.assertIn("Must login with password and one of the following fields", errors[0]['message'])
 
 
-class LoginTestCase(LoginBaseTestCase):
+class LoginTestCase(LoginCommonTestCase):
     RESPONSE_RESULT_KEY = 'tokenAuth'
 
     def get_query(self, field, username, password=None):
@@ -161,7 +161,7 @@ class LoginTestCase(LoginBaseTestCase):
         )
 
 
-class LoginRelayTestCase(LoginBaseTestCase):
+class LoginRelayTestCase(LoginCommonTestCase):
     RESPONSE_RESULT_KEY = 'relayTokenAuth'
 
     def get_query(self, field, username, password=None):

@@ -1,11 +1,11 @@
 import json
 from datetime import timedelta
 
+from graphql_auth.common_testcase import CommonTestCase
 from graphql_auth.constants import Messages
-from graphql_auth.testingx import BaseTestCase
 
 
-class VerifyTokenBaseTestCase(BaseTestCase):
+class VerifyTokenCommonTestCase(CommonTestCase):
     LOGIN_QUERY_RESPONSE_RESULT_KEY: str
 
     def setUp(self):
@@ -52,7 +52,7 @@ class VerifyTokenBaseTestCase(BaseTestCase):
         self.assertEqual(result['errors'], Messages.INVALID_TOKEN)
 
 
-class VerifyTokenTestCase(VerifyTokenBaseTestCase):
+class VerifyTokenTestCase(VerifyTokenCommonTestCase):
     RESPONSE_RESULT_KEY = 'verifyToken'
     LOGIN_QUERY_RESPONSE_RESULT_KEY: str = 'tokenAuth'
 
@@ -78,7 +78,7 @@ class VerifyTokenTestCase(VerifyTokenBaseTestCase):
         )
 
 
-class VerifyTokenRelayTestCase(VerifyTokenBaseTestCase):
+class VerifyTokenRelayTestCase(VerifyTokenCommonTestCase):
     RESPONSE_RESULT_KEY = 'relayVerifyToken'
     LOGIN_QUERY_RESPONSE_RESULT_KEY: str = 'relayTokenAuth'
 

@@ -1,10 +1,10 @@
 import json
 
+from graphql_auth.common_testcase import CommonTestCase
 from graphql_auth.constants import Messages
-from graphql_auth.base_testcase import BaseTestCase
 
 
-class PasswordChangeBaseTestCase(BaseTestCase):
+class PasswordChangeCommonTestCase(CommonTestCase):
     RESPONSE_TOKEN_AUTH_KEY: str
 
     def setUp(self):
@@ -83,7 +83,7 @@ class PasswordChangeBaseTestCase(BaseTestCase):
             i += 1
 
 
-class PasswordChangeTestCase(PasswordChangeBaseTestCase):
+class PasswordChangeTestCase(PasswordChangeCommonTestCase):
     RESPONSE_RESULT_KEY = 'passwordChange'
     RESPONSE_TOKEN_AUTH_KEY = 'tokenAuth'
 
@@ -118,7 +118,7 @@ class PasswordChangeTestCase(PasswordChangeBaseTestCase):
         )
 
 
-class PasswordChangeRelayTestCase(PasswordChangeBaseTestCase):
+class PasswordChangeRelayTestCase(PasswordChangeCommonTestCase):
     RESPONSE_RESULT_KEY = 'relayPasswordChange'
     RESPONSE_TOKEN_AUTH_KEY = 'relayTokenAuth'
 

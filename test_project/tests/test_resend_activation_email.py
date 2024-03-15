@@ -3,11 +3,11 @@ from unittest import mock
 
 from django.core import mail
 
+from graphql_auth.common_testcase import CommonTestCase
 from graphql_auth.constants import Messages
-from graphql_auth.base_testcase import BaseTestCase
 
 
-class ResendActivationEmailBaseTestCase(BaseTestCase):
+class ResendActivationEmailCommonTestCase(CommonTestCase):
     def setUp(self):
         self.user1 = self.create_user(email="gaa@email.com", username="gaa", verified=False)
         self.user2 = self.create_user(email="bar@email.com", username="bar", verified=True)
@@ -66,7 +66,7 @@ class ResendActivationEmailBaseTestCase(BaseTestCase):
         self.assertEqual(result['errors'], Messages.EMAIL_FAIL)
 
 
-class ResendActivationEmailTestCase(ResendActivationEmailBaseTestCase):
+class ResendActivationEmailTestCase(ResendActivationEmailCommonTestCase):
     RESPONSE_RESULT_KEY = 'resendActivationEmail'
 
     def get_query(self, email):
@@ -80,7 +80,7 @@ class ResendActivationEmailTestCase(ResendActivationEmailBaseTestCase):
         )
 
 
-class ResendActivationEmailRelayTestCase(ResendActivationEmailBaseTestCase):
+class ResendActivationEmailRelayTestCase(ResendActivationEmailCommonTestCase):
     RESPONSE_RESULT_KEY = 'relayResendActivationEmail'
 
     def get_query(self, email):

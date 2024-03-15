@@ -71,5 +71,6 @@ nav:
   - Installation: installation.md
   - Settings: settings.md
   - API: api.md
+  - Tests: tests.md
   - Overriding email templates: overriding-email-templates.md
   - Changelog: changelog.md

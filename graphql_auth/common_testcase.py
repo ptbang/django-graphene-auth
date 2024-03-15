@@ -1,18 +1,12 @@
 import json
-import pprint
-import re
 import types
 from typing import Any
 
 import django
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AnonymousUser
-from django.test import RequestFactory
 from graphene_django.utils.testing import GraphQLTestCase
 
 from graphql_auth.models import UserStatus
-
-from .schema import default_schema, relay_schema
 
 _DJANGO_VERSION_AT_LEAST_4_2 = django.VERSION[0] > 4 or (django.VERSION[0] == 4 and django.VERSION[1] >= 2)
 
@@ -27,26 +21,26 @@ class TestCaseMeta(type):
         return super().__new__(cls, name, bases, dct)
 
 
-class BaseTestCase(GraphQLTestCase, metaclass=TestCaseMeta):
+class CommonTestCase(GraphQLTestCase, metaclass=TestCaseMeta):
     """
-    provide make_request helper to easily make
-    requests with context variables.
+    Thanks to metaclass TestCaseMeta we can create a base test class with
+    common test methods for both GraphQL and Relay request.
 
-    Return a shortcut of the client.execute["data"]["<query name>"].
+    For example we create a LoginCommonTestCase class that:
+        - inherits from this CommonTestCase
+        - contains a test method with the name of prefix `_test_some_method`.
 
-    example:
-        query = `
-            mutation {
-             register ...
-            }
-        `
-        return client.execute["data"]["register"]
+    Next, let's create 2 test classes named LoginTestCase and LoginRelayTestCase
+    that inherit from above LoginCommonTestCase class.
+    The LoginTestCase will be used to test with GraphQL requests and
+    the LoginRelayTestCase will be used to Relay requests.
+    Each of these test classes will automatically have a test method named `test_some_method`
     """
 
     RESPONSE_RESULT_KEY: str
     RESPONSE_ERROR_KEY: str = 'errors'
 
-    default_password = "23kegbsi7g2k"
+    default_password = 'very-strong-password'
 
     def create_user(self, password=None, verified=False, archived=False, secondary_email="", *args, **kwargs):
         if kwargs.get("username"):
@@ -72,24 +66,3 @@ class BaseTestCase(GraphQLTestCase, metaclass=TestCaseMeta):
 
     def get_response_errors(self, response) -> list[dict[str, str]]:
         return json.loads(response.content.decode())[self.RESPONSE_ERROR_KEY]
-
-    def make_request(self, query, variables={"user": AnonymousUser()}, raw=False, client=None):
-        request_factory = RequestFactory()
-        my_request = request_factory.post("/graphql/")
-
-        for key in variables:
-            setattr(my_request, key, variables[key])
-
-        executed = client.execute(query, context=my_request)  # type: ignore
-        if raw:
-            return executed
-        pattern = r"{\s*(?P<target>\w*)"
-        m = re.search(pattern, query)
-        m = m.groupdict()  # type: ignore
-        try:
-            return executed["data"][m["target"]]
-        except:
-            print("\nInvalid query!")
-            raise Exception(executed["errors"])
-        finally:
-            pprint.pprint(executed)

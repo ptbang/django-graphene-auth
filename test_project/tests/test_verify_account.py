@@ -1,12 +1,12 @@
 from datetime import timedelta
 
+from graphql_auth.common_testcase import CommonTestCase
 from graphql_auth.constants import Messages
 from graphql_auth.signals import user_verified
-from graphql_auth.base_testcase import BaseTestCase
 from graphql_auth.utils import get_token
 
 
-class VerifyAccountBaseTestCase(BaseTestCase):
+class VerifyAccountCommonTestCase(CommonTestCase):
     def setUp(self):
         self.user1 = self.create_user(email="foo@email.com", username="foo", verified=False)
         self.user2 = self.create_user(email="bar@email.com", username="bar", verified=True)
@@ -63,7 +63,7 @@ class VerifyAccountBaseTestCase(BaseTestCase):
         self.assertEqual(result['errors'], Messages.INVALID_TOKEN)
 
 
-class VerifyAccountTestCase(VerifyAccountBaseTestCase):
+class VerifyAccountTestCase(VerifyAccountCommonTestCase):
     RESPONSE_RESULT_KEY = 'verifyAccount'
 
     def verify_query(self, token):
@@ -77,7 +77,7 @@ class VerifyAccountTestCase(VerifyAccountBaseTestCase):
         )
 
 
-class VerifyAccountRelayTestCase(VerifyAccountBaseTestCase):
+class VerifyAccountRelayTestCase(VerifyAccountCommonTestCase):
     RESPONSE_RESULT_KEY = 'relayVerifyAccount'
 
     def verify_query(self, token):

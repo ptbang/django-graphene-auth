@@ -1,8 +1,8 @@
+from graphql_auth.common_testcase import CommonTestCase
 from graphql_auth.constants import Messages
-from graphql_auth.base_testcase import BaseTestCase
 
 
-class RemoveSecondaryEmailBaseTestCase(BaseTestCase):
+class RemoveSecondaryEmailCommonTestCase(CommonTestCase):
     def setUp(self):
         self.user = self.create_user(
             email="bar@email.com",
@@ -46,7 +46,7 @@ class RemoveSecondaryEmailBaseTestCase(BaseTestCase):
         self.user.refresh_from_db()
 
 
-class RemoveSecondaryEmailTestCase(RemoveSecondaryEmailBaseTestCase):
+class RemoveSecondaryEmailTestCase(RemoveSecondaryEmailCommonTestCase):
     RESPONSE_RESULT_KEY = 'removeSecondaryEmail'
 
     def get_query(self, password=None):
@@ -60,7 +60,7 @@ class RemoveSecondaryEmailTestCase(RemoveSecondaryEmailBaseTestCase):
         )
 
 
-class RemoveSecondaryEmailRelayTestCase(RemoveSecondaryEmailBaseTestCase):
+class RemoveSecondaryEmailRelayTestCase(RemoveSecondaryEmailCommonTestCase):
     RESPONSE_RESULT_KEY = 'relayRemoveSecondaryEmail'
 
     def get_query(self, password=None):

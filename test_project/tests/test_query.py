@@ -3,12 +3,12 @@ import json
 
 from django.contrib.auth import get_user_model
 
-from graphql_auth.testingx import BaseTestCase
+from graphql_auth.common_testcase import CommonTestCase
 
 UserModel = get_user_model()
 
 
-class QueryTestCase(BaseTestCase):
+class QueryTestCase(CommonTestCase):
     def setUp(self):
         self.user1 = self.create_user(email="foo@email.com", username="foo", verified=False)
         self.user2 = self.create_user(email="bar@email.com", username="bar", verified=True)

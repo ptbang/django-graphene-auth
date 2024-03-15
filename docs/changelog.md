@@ -2,6 +2,11 @@
 
 ## v1.0
 
+### 1.1.0
+
+- Added CommonTestCase class for testing both GraphQL and Relay queries.
+- Cleanup testing code
+
 ### 1.0.3
 
 - Fixed bug: when trying to refresh token (`mutation` `refreshToken`)  with invalid refresh_token,

@@ -1,11 +1,11 @@
 import json
 from datetime import timedelta
 
+from graphql_auth.common_testcase import CommonTestCase
 from graphql_auth.constants import Messages
-from graphql_auth.base_testcase import BaseTestCase
 
 
-class RefreshTokenBaseTestCase(BaseTestCase):
+class RefreshTokenCommonTestCase(CommonTestCase):
     RESPONSE_RESULT_KEY: str
     TOKEN_AUTH_RESPONSE_RESULT_KEY: str
 
@@ -58,7 +58,7 @@ class RefreshTokenBaseTestCase(BaseTestCase):
         self.assertIsNone(result['payload'])
 
 
-class RefreshTokenTestCase(RefreshTokenBaseTestCase):
+class RefreshTokenTestCase(RefreshTokenCommonTestCase):
     RESPONSE_RESULT_KEY = 'refreshToken'
     TOKEN_AUTH_RESPONSE_RESULT_KEY = 'tokenAuth'
 
@@ -83,7 +83,7 @@ class RefreshTokenTestCase(RefreshTokenBaseTestCase):
         )
 
 
-class RefreshTokenRelayTestCase(RefreshTokenBaseTestCase):
+class RefreshTokenRelayTestCase(RefreshTokenCommonTestCase):
     RESPONSE_RESULT_KEY = 'relayRefreshToken'
     TOKEN_AUTH_RESPONSE_RESULT_KEY = 'relayTokenAuth'
 

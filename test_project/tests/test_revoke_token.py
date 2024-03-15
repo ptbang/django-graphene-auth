@@ -1,11 +1,11 @@
 import json
 from datetime import datetime, timedelta
 
+from graphql_auth.common_testcase import CommonTestCase
 from graphql_auth.constants import Messages
-from graphql_auth.testingx import BaseTestCase
 
 
-class RevokeTokenBaseTestCase(BaseTestCase):
+class RevokeTokenCommonTestCase(CommonTestCase):
     LOGIN_QUERY_RESPONSE_RESULT_KEY: str
 
     def setUp(self):
@@ -54,7 +54,7 @@ class RevokeTokenBaseTestCase(BaseTestCase):
         self.assertIsNone(result['revoked'])
 
 
-class RevokeTokenTestCase(RevokeTokenBaseTestCase):
+class RevokeTokenTestCase(RevokeTokenCommonTestCase):
     RESPONSE_RESULT_KEY = 'revokeToken'
     LOGIN_QUERY_RESPONSE_RESULT_KEY = 'tokenAuth'
 
@@ -79,7 +79,7 @@ class RevokeTokenTestCase(RevokeTokenBaseTestCase):
         )
 
 
-class RevokeTokenRelayTestCase(RevokeTokenBaseTestCase):
+class RevokeTokenRelayTestCase(RevokeTokenCommonTestCase):
     RESPONSE_RESULT_KEY = 'relayRevokeToken'
     LOGIN_QUERY_RESPONSE_RESULT_KEY = 'relayTokenAuth'
 

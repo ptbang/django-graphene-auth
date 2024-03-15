@@ -1,8 +1,8 @@
+from graphql_auth.common_testcase import CommonTestCase
 from graphql_auth.constants import Messages
-from graphql_auth.testingx import BaseTestCase
 
 
-class SwapEmailsBaseTestCase(BaseTestCase):
+class SwapEmailsCommonTestCase(CommonTestCase):
     def setUp(self):
         self.user = self.create_user(
             email="bar@email.com",
@@ -37,7 +37,7 @@ class SwapEmailsBaseTestCase(BaseTestCase):
         self.assertNotEqual(self.user.status.secondary_email, "bar@email.com")  # type: ignore
 
 
-class SwapEmailsTestCase(SwapEmailsBaseTestCase):
+class SwapEmailsTestCase(SwapEmailsCommonTestCase):
     RESPONSE_RESULT_KEY = 'swapEmails'
 
     def get_query(self, password=None):
@@ -51,7 +51,7 @@ class SwapEmailsTestCase(SwapEmailsBaseTestCase):
         )
 
 
-class SwapEmailsRelayTestCase(SwapEmailsBaseTestCase):
+class SwapEmailsRelayTestCase(SwapEmailsCommonTestCase):
     RESPONSE_RESULT_KEY = 'relaySwapEmails'
 
     def get_query(self, password=None):

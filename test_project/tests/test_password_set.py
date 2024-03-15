@@ -1,11 +1,11 @@
 from datetime import timedelta
 
+from graphql_auth.common_testcase import CommonTestCase
 from graphql_auth.constants import Messages
-from graphql_auth.testingx import BaseTestCase
 from graphql_auth.utils import get_token
 
 
-class PasswordSetBaseTestCase(BaseTestCase):
+class PasswordSetCommonTestCase(CommonTestCase):
     def setUp(self):
         self.user1 = self.create_user(email="gaa@email.com", username="gaa", verified=True, archived=False)
         self.user1_old_pass = self.user1.password
@@ -83,7 +83,7 @@ class PasswordSetBaseTestCase(BaseTestCase):
         self.assertEqual(self.user1_old_pass, self.user1.password)
 
 
-class PasswordSetTestCase(PasswordSetBaseTestCase):
+class PasswordSetTestCase(PasswordSetCommonTestCase):
     RESPONSE_RESULT_KEY = 'passwordSet'
 
     def get_login_query(self) -> str:
@@ -116,7 +116,7 @@ class PasswordSetTestCase(PasswordSetBaseTestCase):
         )
 
 
-class PasswordSetRelayTestCase(PasswordSetBaseTestCase):
+class PasswordSetRelayTestCase(PasswordSetCommonTestCase):
     RESPONSE_RESULT_KEY = 'relayPasswordSet'
 
     def get_login_query(self) -> str:

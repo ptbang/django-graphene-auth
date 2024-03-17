@@ -1,6 +1,8 @@
 from copy import copy
+from unittest.mock import patch
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 from graphql_auth.common_testcase import CommonTestCase
 from graphql_auth.constants import Messages
@@ -83,6 +85,18 @@ class LoginCommonTestCase(CommonTestCase):
         query = self.get_query("email", self.verified_user.status.secondary_email)  # type: ignore
         with self.assertNumQueries(3):
             response = self.query(query)
+        result = self.get_response_result(response)
+        self.assertTrue(result['success'])
+        self.assertIsNone(result['errors'])
+        self.assertTrue(result["token"])
+        self.assertTrue(result["refreshToken"])
+
+    def _test_login_by_secondary_email_on_different_username_field(self):
+        query = self.get_query("email", self.verified_user.status.secondary_email)  # type: ignore
+        User = get_user_model()
+        with patch.object(User, 'USERNAME_FIELD', 'email'):
+            with self.assertNumQueries(3):
+                response = self.query(query)
         result = self.get_response_result(response)
         self.assertTrue(result['success'])
         self.assertIsNone(result['errors'])

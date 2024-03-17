@@ -1,13 +1,13 @@
 from smtplib import SMTPException
 
 import graphene
-from graphene.types.generic import GenericScalar
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.signing import BadSignature, SignatureExpired
 from django.db import transaction
 from django.utils.translation import gettext as _
+from graphene.types.generic import GenericScalar
 from graphql_jwt.decorators import token_auth
 from graphql_jwt.exceptions import JSONWebTokenError, JSONWebTokenExpired
 
@@ -383,26 +383,22 @@ class ObtainJSONWebTokenMixin(SuccessErrorsOutput):
             )
 
         try:
-            final_kwargs = None
             USERNAME_FIELD = UserModel.USERNAME_FIELD  # type: ignore
+            password = kwargs.get("password")
 
             # extract USERNAME_FIELD to use in query
             if USERNAME_FIELD in kwargs:
                 data_to_login = {USERNAME_FIELD: kwargs[USERNAME_FIELD]}
-                final_kwargs = kwargs
-                password = kwargs.get("password")
             else:  # use what is left to query
-                password = kwargs.pop("password")
                 query_field, query_value = kwargs.popitem()
                 data_to_login = {query_field: query_value}
 
             cls.user_to_login = get_user_to_login(**data_to_login)
 
-            if not final_kwargs:
-                final_kwargs = {
-                    "password": password,
-                    USERNAME_FIELD: getattr(cls.user_to_login, USERNAME_FIELD),
-                }
+            final_kwargs = {
+                "password": password,
+                USERNAME_FIELD: getattr(cls.user_to_login, USERNAME_FIELD),
+            }
 
             if cls.user_to_login.status.verified or app_settings.ALLOW_LOGIN_NOT_VERIFIED:  # type: ignore
                 return cls.parent_resolve(root, info, **final_kwargs)  # type: ignore
